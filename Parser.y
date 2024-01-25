@@ -1,6 +1,6 @@
 {
-  module Main where
-  import Data.Char (isSpace, isAlpha, isDigit)
+module Main where
+import Data.Char (isSpace, isAlpha, isDigit)
 
 }
 
@@ -26,16 +26,18 @@ false      { TokenFalse $$}
 '('        { TokenOP }
 ')'        { TokenCP }
 ':'        { TokenColon }
+';'        { TokenSemicolon }
 %%
 
-Exp : let var '=' Exp { Let $2 $4 }
-| Exp '+' Exp { Plus $1 $3 }
-| Exp '-' Exp { Minus $1 $3 }
-| if Exp then Exp else Exp { IfExp $2 $4 $6 }
+Exp : let var '=' Exp ';' { Let $2 $4 }
+| Exp '+' Exp ';' { Plus $1 $3 }
+| Exp '-' Exp ';' { Minus $1 $3 }
+| if Exp then Exp else Exp ';' { IfExp $2 $4 $6 }
 | true { Bool $1 }
 | false { Bool $1 }
-| print '(' Exp ')' { PrintExp $3 }
-| while Exp ':' Exp { While $2 $4 }
+| print '(' Exp ')' ';' { PrintExp $3 }
+| while Exp ':' Exp ';' { While $2 $4 }
+| Exp ';' Exp  { Exps $1 $3 }
 | int  { Int $1 }
 | var  { Var $1 }
 
@@ -46,7 +48,7 @@ parseError _ = error "Parse Error"
 
 data Exp
   = Var String
-  | Int Int:
+  | Int Int
   | Let String Exp
   | Bool String
   | Plus Exp Exp
@@ -54,6 +56,7 @@ data Exp
   | IfExp Exp Exp Exp
   | While Exp Exp
   | PrintExp Exp
+  | Exps Exp Exp
   deriving Show
 
 data Token
@@ -73,6 +76,7 @@ data Token
   | TokenOP
   | TokenCP
   | TokenColon
+  | TokenSemicolon
   deriving Show
 
 lexer :: String -> [Token]
@@ -87,6 +91,7 @@ lexer ('-':cs) = TokenMinus : lexer cs
 lexer (':':cs) = TokenColon : lexer cs
 lexer ('(':cs) = TokenOP : lexer cs
 lexer (')':cs) = TokenCP : lexer cs
+lexer (';':cs) = TokenSemicolon : lexer cs
 
 lexNum cs = TokenInt (read num) : lexer rest
   where (num, rest) = span isDigit cs
