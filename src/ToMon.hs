@@ -9,6 +9,7 @@ data MonExp
     | MonPlus MonExp MonExp
     | MonMinus MonExp MonExp
     deriving Show
+
 toMon :: Exp -> MonExp
 toMon (Int n) = AtmInt n
 toMon (Var v) = AtmVar v
