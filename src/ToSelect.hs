@@ -45,5 +45,15 @@ toSelect (SeqMon e e2)  =
   let firsts = toSelect e in
     let seconds = toSelect e2 in
       firsts ++ seconds
-  
-          
+toSelect (CBlock []) = []
+toSelect (CBlock (x:xs)) =
+  toSelectHelper x ++ rest
+  where
+    rest = toSelect (CBlock xs)
+    
+toSelectHelper :: (String, MonExp, String, String) -> [(String, Imm, String)]
+toSelectHelper s =
+  case s of
+    ("start", MonLet var (AtmBool "True"), b1, b2) -> [("start", ImmStr "dummy", "dummy"), ("movq", ImmStr "True", var), ("compq", ImmStr "True", var), ("jmp", ImmStr b1, "dummy"), ("je", ImmStr b2, "dummy")]
+    (b1, AtmInt n, tmp, b2) -> [(b1, ImmStr "dummy", "dummy"), ("movq", ImmInt n, tmp)]
+    (b1, MonLet var (AtmBool bool), tmp, b2) -> [("movq", ImmStr bool, var), ("compq", ImmStr bool, var), ("jmp", ImmStr b1, "dummy"), ("je", ImmStr b2, "dummy")]
