@@ -40,7 +40,7 @@ Exp : var  { Var $1 }
 | while Exp ':' Exp ';' { While $2 $4 }
 | Exp ';' Exp  { Exps $1 $3 }
 | int  { Int $1 }
-
+| '-' int { Negative $2 }
 {
 
 parseError :: [Token] -> a
@@ -49,6 +49,7 @@ parseError _ = error "Parse Error"
 data Exp
   = Var String
   | Int Int
+  | Negative Int
   | Let String Exp
   | Bool String
   | Plus Exp Exp
