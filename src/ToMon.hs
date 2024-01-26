@@ -32,7 +32,9 @@ toMon (Plus (Int e) (Negative e2)) counter =
   (SeqMon (MonLet tempVar (MonNegative e2)) (MonPlus (toMon (Int e) counter) (AtmVar tempVar)))
   where
     tempVar = "temp_" ++ show counter
-
+toMon (Plus e e2) counter =
+  MonPlus (toMon e counter) (toMon e2 counter)
+  
 toMon (Minus e e2) counter = MonMinus (toMon e counter) (toMon e2 counter)
 toMon (Exps e e2) counter =
   (SeqMon (toMon e counter) (toMon e2 counter2))
