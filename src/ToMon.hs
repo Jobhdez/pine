@@ -1,7 +1,6 @@
 module ToMon where
 
 import Parser
-import Data.Unique
 
 data MonExp
     = AtmInt Int
@@ -46,7 +45,12 @@ toMon (Let var (Plus (Int e) (Negative e2))) counter =
           in
         SeqMon letexp assignment
  
+toMon (Let var (Negative n)) counter =
+  MonLet var (MonNegative n)
 
+toMon (Let var e) counter =
+  MonLet var (toMon e counter)
+  
 getMonLetNegative :: MonExp -> MonExp
 getMonLetNegative (SeqMon (MonLet s negative) (MonPlus e e2)) = (MonLet s negative)
 
