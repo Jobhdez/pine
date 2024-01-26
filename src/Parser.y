@@ -29,7 +29,8 @@ false      { TokenFalse $$}
 ';'        { TokenSemicolon }
 %%
 
-Exp : let var '=' Exp ';' { Let $2 $4 }
+Exp : var  { Var $1 }
+| let var '=' Exp ';' { Let $2 $4 }
 | Exp '+' Exp ';' { Plus $1 $3 }
 | Exp '-' Exp ';' { Minus $1 $3 }
 | if Exp then Exp else Exp ';' { IfExp $2 $4 $6 }
@@ -39,7 +40,6 @@ Exp : let var '=' Exp ';' { Let $2 $4 }
 | while Exp ':' Exp ';' { While $2 $4 }
 | Exp ';' Exp  { Exps $1 $3 }
 | int  { Int $1 }
-| var  { Var $1 }
 
 {
 
