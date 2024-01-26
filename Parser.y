@@ -1,5 +1,5 @@
 {
-module Main where
+module Parser where
 import Data.Char (isSpace, isAlpha, isDigit)
 
 }

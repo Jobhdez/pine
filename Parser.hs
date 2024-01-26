@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -w #-}
-module Main where
+module Parser where
 import Data.Char (isSpace, isAlpha, isDigit)
 import qualified Data.Array as Happy_Data_Array
 import qualified Data.Bits as Bits
