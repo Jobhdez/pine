@@ -4,6 +4,7 @@ import Parser
 import ToMon
 
 data Imm = ImmInt Int | ImmStr String deriving Show
+
 data SelectExp =
   Instructions [(String, Imm, String)]
   | Immediate Int
@@ -45,6 +46,7 @@ toSelect (SeqMon e e2)  =
   let firsts = toSelect e in
     let seconds = toSelect e2 in
       firsts ++ seconds
+      
 toSelect (CBlock []) = []
 toSelect (CBlock (x:xs)) =
   toSelectHelper x ++ rest
