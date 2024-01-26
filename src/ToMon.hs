@@ -11,6 +11,8 @@ data MonExp
     | MonMinus MonExp MonExp
     | MonLet String MonExp
     | SeqMon MonExp MonExp
+    | MonIf MonExp MonExp MonExp
+    | MonLstSeq MonExp MonExp MonExp
     deriving Show
 
 toMon :: Exp -> Int -> MonExp
@@ -50,6 +52,19 @@ toMon (Let var (Negative n)) counter =
 
 toMon (Let var e) counter =
   MonLet var (toMon e counter)
+
+toMon (IfExp (Bool b) thn els) counter =
+  MonIf (toMon (Bool b) counter) (toMon thn counter) (toMon els counter)
+toMon (IfExp (Var v) thn els) counter =
+  MonIf (toMon (Var v) counter) (toMon thn counter) (toMon els counter)
+toMon (IfExp (IfExp cnd thn els) thn2 els2) counter =
+  let tmpname = "temp_" ++ show counter in
+    let counter2 = counter + 1 in
+      let tmpname2 = "temp_" ++ show counter2 in
+        let counter3 = counter2 + 1 in
+          let counter4 = counter3 + 1 in
+            MonLstSeq (MonLet tmpname (toMon cnd counter3)) (MonLet tmpname2 (toMon (IfExp (Var tmpname) thn els) counter4)) (toMon (IfExp (Var tmpname2) thn2 els2) counter4)
+        
   
 getMonLetNegative :: MonExp -> MonExp
 getMonLetNegative (SeqMon (MonLet s negative) (MonPlus e e2)) = (MonLet s negative)
