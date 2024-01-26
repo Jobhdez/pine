@@ -92,3 +92,6 @@ toCLike (MonIf (AtmBool b) thn els) counter =
     let counter2 = counter + 1 in
       let block2 = "block_" ++ show counter2 in
         CBlock [("start", (MonLet "temp_0" (AtmBool b)), block, block2), (block, thn, "temp_0", block2), (block2, els, "temp_0", "dummy")]
+        
+toCLike monexp counter =
+  monexp
