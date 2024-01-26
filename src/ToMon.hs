@@ -14,6 +14,7 @@ data MonExp
     | SeqMon MonExp MonExp
     | MonIf MonExp MonExp MonExp
     | MonLstSeq MonExp MonExp MonExp
+    | CBlock [(String, MonExp)]
     deriving Show
 
 toMon :: Exp -> Int -> MonExp
@@ -73,7 +74,7 @@ getMonLetNegative (SeqMon (MonLet s negative) (MonPlus e e2)) = (MonLet s negati
 getMonPlus :: MonExp -> MonExp
 getMonPlus (SeqMon (MonLet s negative) (MonPlus e e2)) = (MonPlus e e2)
   
-toCLike :: MonExp -> Int -> [(String, MonExp)]
+toCLike :: MonExp -> Int -> MonExp
 toCLike (MonLstSeq (MonLet var b) (MonLet var2 (MonIf var3 thn els)) (MonIf var4 thn2 els2)) counter =
   let block = "block_" ++ show counter in
     let counter2 = counter + 1 in
@@ -82,10 +83,10 @@ toCLike (MonLstSeq (MonLet var b) (MonLet var2 (MonIf var3 thn els)) (MonIf var4
           let block3 = "block_" ++ show counter3 in
             let counter4 = counter3 + 1 in
               let block4 = "block_" ++ show counter4 in
-                [("start", (MonLet var b)), (block, (MonLet var2 thn)), (block2, (MonLet var2 els)), (block3, thn2), (block4, els2)]
+                CBlock [("start", (MonLet var b)), (block, (MonLet var2 thn)), (block2, (MonLet var2 els)), (block3, thn2), (block4, els2)]
                 
 toCLike (MonIf (AtmBool b) thn els) counter =
   let block = "block_" ++ show counter in
     let counter2 = counter + 1 in
       let block2 = "block_" ++ show counter2 in
-        [("start", (MonLet "temp_0" (AtmBool b))), (block, thn), (block2, els)]
+        CBlock [("start", (MonLet "temp_0" (AtmBool b))), (block, thn), (block2, els)]
