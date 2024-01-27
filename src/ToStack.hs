@@ -25,6 +25,13 @@ toStack [("movq", ImmInt n, var), ("subq", ImmInt n2, var2)] counter =
     let stacklocation = "-" ++ show counter ++ "(%rbp)" in
       [("movq", ImmStr (show n), stacklocation), ("subq", ImmStr (show n2), stacklocation)]
 --}
+data StackExp = StackInstrs [(String, Imm, String)] deriving Show
+
+toStack :: SelectExp -> StackExp
+toStack (Instructions ins) =
+  StackInstrs outs
+  where
+    outs = toStackHelper ins 0 Map.empty
 
 toStackHelper :: [(String, Imm, String)] -> Int -> Map.Map String String -> [(String, Imm, String)]
 toStackHelper [] _ _ = []
