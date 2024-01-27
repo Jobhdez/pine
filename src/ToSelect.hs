@@ -34,7 +34,9 @@ toSelect (MonPlus (AtmVar v) (AtmVar v2)) =
 toSelect (MonLet var (AtmInt n)) =
   [("movq", ImmInt n, var)]
 
-
+toSelect (MonLet var (AtmVar var2)) =
+  [("movq", ImmStr var2, var)]
+  
 toSelect (MonLet var (MonPlus (AtmInt n) (AtmInt n2))) =
   [("movq", ImmInt n, var), ("addq", ImmInt n2, var)]
 
@@ -67,6 +69,11 @@ toSelect (CBlock (x:xs)) =
 toSelectHelper :: (String, MonExp, String, String) -> [(String, Imm, String)]
 toSelectHelper s =
   case s of
-    ("start", MonLet var (AtmBool "True"), b1, b2) -> [("start", ImmStr "dummy", "dummy"), ("movq", ImmStr "True", var), ("compq", ImmStr "True", var), ("jmp", ImmStr b1, "dummy"), ("je", ImmStr b2, "dummy")]
+    ("start", MonLet var (AtmBool "True"), b1, b2) -> [("start", ImmStr "dummy", "dummy"), ("movq", ImmStr "True", var), ("cmpq", ImmStr "True", var), ("jmp", ImmStr b1, "dummy"), ("je", ImmStr b2, "dummy")]
     (b1, AtmInt n, tmp, b2) -> [(b1, ImmStr "dummy", "dummy"), ("movq", ImmInt n, tmp)]
-    (b1, MonLet var (AtmBool bool), tmp, b2) -> [("movq", ImmStr bool, var), ("compq", ImmStr bool, var), ("jmp", ImmStr b1, "dummy"), ("je", ImmStr b2, "dummy")]
+    (b1, MonPrint (AtmInt n), tmp, b2) -> [(b1, ImmStr "dummy", "dummy"), ("movq", ImmInt n, "%rdi"), ("print", ImmStr "dummy", "dummy")]
+    (b1, MonPrint (AtmVar v), tmp, b2)  -> [(b1, ImmStr "dummy", "dummy"), ("movq", ImmStr v, "%rdi"), ("print", ImmStr "dummy", "dummy")]
+    (b1, SeqMon x y, tmp, b2) -> let ssexp = toSelect (SeqMon x y) in
+      ssexp
+    (b1, MonLet var (AtmBool bool), tmp, b2) -> [("movq", ImmStr bool, var), ("cmpq", ImmStr bool, var), ("jmp", ImmStr b1, "dummy"), ("je", ImmStr b2, "dummy")]
+    
