@@ -19,13 +19,16 @@ selectInstructions monexp =
 toSelect :: MonExp -> [(String, Imm, String)]
 toSelect (AtmInt n) = [("immediate",ImmInt n, "dummy")]
 
+toSelect (AtmVar v) =
+  [("dummy", ImmStr v, "dummy")]
+  
 toSelect (MonPlus (AtmInt n) (AtmInt n2)) =
-  [("movq", ImmInt n, "tempvar"), ("addq", ImmInt n2, "tempVar")]
+  [("movq", ImmInt n, "tempvar"), ("addq", ImmInt n2, "tempvar")]
 
 toSelect (MonPlus (AtmVar v) (AtmInt e))  =
   [("addq", ImmInt e, v)]
   
-toSelect (MonLet var (AtmInt n))  =
+toSelect (MonLet var (AtmInt n)) =
   [("movq", ImmInt n, var)]
 
 toSelect (MonLet var (MonPlus (AtmInt n) (AtmInt n2))) =
@@ -33,6 +36,9 @@ toSelect (MonLet var (MonPlus (AtmInt n) (AtmInt n2))) =
 
 toSelect (MonLet var (MonPlus (AtmInt n) (AtmVar v)))  =
   [("movq", ImmInt n, var), ("addq", ImmStr v, var)]
+
+toSelect (MonLet var (MonPlus (AtmVar var2) (AtmInt n))) =
+  [("movq", ImmInt n, var), ("addq", ImmStr var, var2)]
   
 toSelect (MonLet var (MonNegative n))  =
   [("movq", ImmInt n, var), ("subq", ImmInt 0, var)]
