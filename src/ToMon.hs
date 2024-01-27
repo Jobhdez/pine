@@ -13,6 +13,7 @@ data MonExp
     | MonLet String MonExp
     | SeqMon MonExp MonExp
     | MonIf MonExp MonExp MonExp
+    | MonPrint MonExp
     | MonLstSeq MonExp MonExp MonExp
     | CBlock [(String, MonExp, String, String)]
     deriving Show
@@ -23,6 +24,11 @@ toMon (Negative n) counter =
   let tmpname = "temp_" ++ show counter in
     let assi = MonLet tmpname (MonNegative n) in
       SeqMon assi (AtmVar tmpname)
+      
+toMon (PrintExp e) counter =
+  let monexp = toMon e counter
+  in
+    MonPrint monexp
     
 toMon (Var v) counter = AtmVar v
 toMon (Bool b) counter = AtmBool b
