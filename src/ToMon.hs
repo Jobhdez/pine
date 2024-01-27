@@ -95,9 +95,11 @@ toCLike (MonLstSeq (MonLet var b) (MonLet var2 (MonIf var3 thn els)) (MonIf var4
                 
 toCLike (MonIf (AtmBool b) thn els) counter =
   let block = "block_" ++ show counter in
-    let counter2 = counter + 1 in
-      let block2 = "block_" ++ show counter2 in
-        CBlock [("start", (MonLet "temp_0" (AtmBool b)), block, block2), (block, thn, "temp_0", block2), (block2, els, "temp_0", "dummy")]
+    let tmpname = "temp_" ++ show counter in
+      let tmpname2 = "temp_" ++ show (counter + 1) in
+        let counter2 = counter + 1 in
+          let block2 = "block_" ++ show counter2 in
+            CBlock [("start", (MonLet tmpname (AtmBool b)), block, block2), (block, thn, tmpname2, block2), (block2, els, tmpname2, "dummy")]
         
 toCLike monexp counter =
   monexp
