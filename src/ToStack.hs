@@ -28,7 +28,7 @@ toStack [("movq", ImmInt n, var), ("subq", ImmInt n2, var2)] counter =
 
 toStackHelper :: [(String, Imm, String)] -> Int -> Map.Map String String -> [(String, Imm, String)]
 toStackHelper [] _ _ = []
-toStackHelper (("movq", ImmInt imm1, tmp1):("addq", ImmInt imm2, tmp2):xs) counter hashmap =
+toStackHelper (("movq", ImmInt imm1, tmp1):xs) counter hashmap =
     let (stacklocation, counter', hashmap') =
             if Map.member tmp1 hashmap
             then (hashmap Map.! tmp1, counter, hashmap)
@@ -37,8 +37,19 @@ toStackHelper (("movq", ImmInt imm1, tmp1):("addq", ImmInt imm2, tmp2):xs) count
                      hashmap' = Map.insert tmp1 stacklocation' hashmap
                  in (stacklocation', counter', hashmap')
     in
-        ("movq", ImmStr (show imm1), stacklocation) : ("addq", ImmStr (show imm2), stacklocation) : toStackHelper xs counter' hashmap'
+        ("movq", ImmStr (show imm1), stacklocation) : toStackHelper xs counter' hashmap'
+
+toStackHelper (("addq", ImmInt imm1, tmp1):xs) counter hashmap =
+  let (stacklocation, counter', hashmap') =
+        if Map.member tmp1 hashmap
+        then (hashmap Map.! tmp1, counter, hashmap)
+        else let counter' = counter + 8
+                 stacklocation' = "-" ++ show counter' ++ "(%rbp)"
+                 hashmap' = Map.insert tmp1 stacklocation' hashmap
+               in (stacklocation', counter', hashmap')
+   in
+    ("addq", ImmStr (show imm1), stacklocation) : toStackHelper xs counter' hashmap'
 
 -- Example usage:
--- toStackHelper [("movq", ImmInt 10, "tmp1"), ("addq", ImmInt 20, "tmp2")] 0 Map.empty
+-- toStackHelper [("movq", ImmInt 10, "tmp1"), ("addq", ImmInt 20, "tmp1")] 0 Map.empty
 
