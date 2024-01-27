@@ -19,17 +19,21 @@ selectInstructions monexp =
 toSelect :: MonExp -> [(String, Imm, String)]
 toSelect (AtmInt n) = [("immediate",ImmInt n, "dummy")]
 
-toSelect (AtmVar v) =
-  [("dummy", ImmStr v, "dummy")]
+toSelect (MonPrint (AtmVar v)) =
+  [("movq", ImmStr v, "%rdi"), ("print", ImmStr "dummy", "dummy")]
   
 toSelect (MonPlus (AtmInt n) (AtmInt n2)) =
   [("movq", ImmInt n, "tempvar"), ("addq", ImmInt n2, "tempvar")]
 
 toSelect (MonPlus (AtmVar v) (AtmInt e))  =
   [("addq", ImmInt e, v)]
+
+toSelect (MonPlus (AtmVar v) (AtmVar v2)) =
+  [("movq", ImmStr v, "%rdi"), ("addq", ImmStr "rdi", v2)]
   
 toSelect (MonLet var (AtmInt n)) =
   [("movq", ImmInt n, var)]
+
 
 toSelect (MonLet var (MonPlus (AtmInt n) (AtmInt n2))) =
   [("movq", ImmInt n, var), ("addq", ImmInt n2, var)]
@@ -44,6 +48,7 @@ toSelect (MonLet var (MonNegative n))  =
   [("movq", ImmInt n, var), ("subq", ImmInt 0, var)]
 
 toSelect (SeqMon (MonLet var e) (MonLet var2 (MonPlus e2 e3)))  =
+  -- e.g., let x = 4;; let y = 3 + 4;;
   let firsts = toSelect (MonLet var e) in
     let seconds = toSelect (MonLet var2 (MonPlus e2 e3)) in
       firsts ++ seconds
