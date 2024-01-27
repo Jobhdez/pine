@@ -74,6 +74,21 @@ toStackHelper (("subq", ImmInt n, tmp1):xs) counter hashmap =
    in
     ("subq", ImmStr "dummy", stacklocation) : toStackHelper xs counter' hashmap'
 
+toStackHelper (("movq", ImmStr imm1, "%rdi"):xs) counter hashmap =
+    let (stacklocation, counter', hashmap') =
+            if Map.member imm1 hashmap
+            then (hashmap Map.! imm1, counter, hashmap)
+            else let counter' = counter + 8
+                     stacklocation' = "-" ++ show counter' ++ "(%rbp)"
+                     hashmap' = Map.insert imm1 stacklocation' hashmap
+                 in (stacklocation', counter', hashmap')
+    in
+        ("movq", ImmStr stacklocation, "%rdi") : toStackHelper xs counter' hashmap'
+
+toStackHelper (("print", ImmStr "dummy", "dummy"):xs) counter hashmap =
+  ("print", ImmStr "dummy", "dummy") : toStackHelper xs counter hashmap
+
+{--
 toStackHelper (("dummy", ImmStr tmp1, "dummy"):xs) counter hashmap =
   let (stacklocation, counter', hashmap') =
         if Map.member tmp1 hashmap
@@ -84,7 +99,7 @@ toStackHelper (("dummy", ImmStr tmp1, "dummy"):xs) counter hashmap =
                in (stacklocation', counter', hashmap')
    in
     ("moveq", ImmStr stacklocation, "%rdi") : ("print", ImmStr "dummy", "dummy") : toStackHelper xs counter' hashmap'
-
+--}
   
 -- Example usage:
 -- toStackHelper [("movq", ImmInt 10, "tmp1"), ("addq", ImmInt 20, "tmp1")] 0 Map.empty
