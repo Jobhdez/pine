@@ -72,7 +72,18 @@ toStackHelper (("subq", ImmInt n, tmp1):xs) counter hashmap =
                  hashmap' = Map.insert tmp1 stacklocation' hashmap
                in (stacklocation', counter', hashmap')
    in
-    ("subq", ImmStr "dummy"o, stacklocation) : toStackHelper xs counter' hashmap'
+    ("subq", ImmStr "dummy", stacklocation) : toStackHelper xs counter' hashmap'
+
+toStackHelper (("dummy", ImmStr tmp1, "dummy"):xs) counter hashmap =
+  let (stacklocation, counter', hashmap') =
+        if Map.member tmp1 hashmap
+        then (hashmap Map.! tmp1, counter, hashmap)
+        else let counter' = counter + 8
+                 stacklocation' = "-" ++ show counter' ++ "(%rbp)"
+                 hashmap' = Map.insert tmp1 stacklocation' hashmap
+               in (stacklocation', counter', hashmap')
+   in
+    ("moveq", ImmStr stacklocation, "%rdi") : ("print", ImmStr "dummy", "dummy") : toStackHelper xs counter' hashmap'
 
   
 -- Example usage:
