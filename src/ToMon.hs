@@ -15,7 +15,7 @@ data MonExp
     | MonIf MonExp MonExp MonExp
     | MonPrint MonExp
     | MonLstSeq MonExp MonExp MonExp
-    | CBlock [(String, MonExp, String, String)]
+    | CBlock [(String, String, MonExp, String, String)]
     deriving Show
 
 toMon :: Exp -> Int -> MonExp
@@ -83,7 +83,7 @@ getMonPlus :: MonExp -> MonExp
 getMonPlus (SeqMon (MonLet s negative) (MonPlus e e2)) = (MonPlus e e2)
   
 toCLike :: MonExp -> Int -> MonExp
-toCLike (MonLstSeq (MonLet var b) (MonLet var2 (MonIf var3 thn els)) (MonIf var4 thn2 els2)) counter =
+toCLike (MonLstSeq (MonLet var b) (MonLet var2 (MonIf (AtmVar var3) thn els)) (MonIf (AtmVar var4) thn2 els2)) counter =
   let block = "block_" ++ show counter in
     let counter2 = counter + 1 in
       let block2 = "block_" ++ show counter2 in
@@ -91,7 +91,7 @@ toCLike (MonLstSeq (MonLet var b) (MonLet var2 (MonIf var3 thn els)) (MonIf var4
           let block3 = "block_" ++ show counter3 in
             let counter4 = counter3 + 1 in
               let block4 = "block_" ++ show counter4 in
-                CBlock [("start", (MonLet var b), block, block2), (block3, (MonLet var2 thn), var, block4), (block3, (MonLet var2 els), var, block4), (block3, thn2, var2, block4), (block4, els2, var2, "dummy")]
+                CBlock [("NoBlock", "start", (MonLet var b), block, block2), (block, block3, (MonLet var2 thn), var, block4), (block2, block3, (MonLet var2 els), var, block4), ("isBlock", block3, thn2, var3, block4), ("isBlock", block4, els2, var3, "dummy")]
                 
 toCLike (MonIf (AtmBool b) thn els) counter =
   let block = "block_" ++ show counter in
@@ -99,7 +99,7 @@ toCLike (MonIf (AtmBool b) thn els) counter =
       let tmpname2 = "temp_" ++ show (counter + 1) in
         let counter2 = counter + 1 in
           let block2 = "block_" ++ show counter2 in
-            CBlock [("start", (MonLet tmpname (AtmBool b)), block, block2), (block, thn, tmpname2, block2), (block2, els, tmpname2, "dummy")]
+            CBlock [("dummy", "start", (MonLet tmpname (AtmBool b)), block, block2), ("dummy", block, thn, tmpname2, block2), ("dummy",block2, els, tmpname2, "dummy")]
         
 toCLike monexp counter =
   monexp
