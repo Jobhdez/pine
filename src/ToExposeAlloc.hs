@@ -1,11 +1,8 @@
 module ToExposeAlloc where
 
 import Parser
-import ToMon
-import ToSelect
-import ToStack
 
-data Assignment = Assi String Int deriving Show
+data Assignment = Assi String Int Int deriving Show
 data IfExpose = IfExpose CndExpose Int CollectExpose deriving Show
 data Allocate = Alloc String Int String deriving Show
 data AllocAssign = AllocAssign String Int String deriving Show
@@ -38,8 +35,8 @@ makeAssignments assi =
     
 makeFstAssignments :: Exp -> Int -> [Assignment]
 makeFstAssignments (TupleExp (Int n)) counter =
-  let tmpname = "x_" ++ show counter in
-    (Assi tmpname n) : []
+  let tmpname = "x" ++ show counter in
+    (Assi tmpname counter n) : []
 
 makeFstAssignments (TupleExp (Exps (Int n) (Int n2))) counter =
   makeFstAssignments (TupleExp (Int n)) counter ++ makeFstAssignments (TupleExp (Int n2)) (counter + 1)
@@ -55,13 +52,12 @@ makeifexp (Assigns assigs) =
         IfExpose global 0 collect
 
 makeallocation :: Assignments -> AllocAssignments
-makeallocation assignments =
+makeallocation assignments  =
   AllocAssigns assig
   where
-    assig = makeallocationshelper assignments 0
+    assig = makeallocationshelper assignments 0 
     
 makeallocationshelper :: Assignments -> Int -> [AllocAssign]
 makeallocationshelper (Assigns []) counter = []
-makeallocationshelper (Assigns ((Assi var n): xs)) counter =
-  let varname = "var_" ++ show counter in
-    AllocAssign varname counter var : makeallocationshelper (Assigns xs) (counter+1)
+makeallocationshelper (Assigns ((Assi var index n): xs)) counter =
+  AllocAssign "tuple" counter var : makeallocationshelper (Assigns xs) (counter+1)
