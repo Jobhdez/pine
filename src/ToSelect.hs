@@ -3,6 +3,7 @@ module ToSelect where
 import Parser
 import ToMon
 import ToExposeAlloc
+import Utils
 
 data Imm = ImmInt Int | ImmStr String | TupleMem String | ImmReg String deriving Show
 
@@ -128,3 +129,16 @@ toAllocAssiHelper ((AllocAssign tuplename index var):xs) =
   let n = 8 * (index + 1) in
     let tupmem = show n ++ "(%r11)" in
       ("movq", ImmStr tuplename, ImmReg "%r11"):("movq", ImmStr var, TupleMem tupmem) : toAllocAssiHelper xs
+
+toIfCndSelect :: CndExpose -> [(String, Imm, Imm)]
+toIfCndSelect (GlobalValue free_ptr bytes from_space) =
+  [("movq", ImmStr "free_ptr_0", ImmReg "%rax"), ("addq", ImmInt bytes, ImmReg "%rax"), ("movq", ImmStr "fromspace_end(%rip)", ImmStr "fromSpace0"), ("cmpq", ImmStr "fromspace0", ImmReg "%rax"), ("jl", ImmStr "block_77", ImmStr "dummy"), ("jmp", ImmStr "block_78", ImmStr "dummy")]
+
+allocateToSelect :: Allocate -> [(String, Imm, Imm)]
+allocateToSelect (Alloc lhs len tuptype) =
+  let tag = makeTag len in
+    [("movq", ImmStr "free_ptr(%rip)", ImmReg "%r11"), ("addq", ImmInt (8 * (len + 1)), ImmStr "free_ptr(%rip)"), ("movq", ImmInt tag, TupleMem "0(%r11)"), ("movq", ImmReg "%r11", ImmStr lhs)]
+
+collectToSelect :: CollectExpose -> [(String, Imm, Imm)]
+collectToSelect (Collect bytes) =
+  [("movq", ImmReg "%r11", ImmReg "%rdi"), ("movq", ImmInt bytes, ImmReg "%rsi"), ("callq", ImmStr "collect", ImmStr "dummy")]
