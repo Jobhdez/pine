@@ -87,6 +87,17 @@ toStackHelper (("movq", ImmStr "True", tmp1):xs) counter hashmap =
                  in (stacklocation', counter', hashmap')
     in
         ("movq", ImmStr "True", stacklocation) : toStackHelper xs counter' hashmap'
+
+toStackHelper (("movq", ImmStr "False", tmp1):xs) counter hashmap =
+    let (stacklocation, counter', hashmap') =
+            if Map.member tmp1 hashmap
+            then (hashmap Map.! tmp1, counter, hashmap)
+            else let counter' = counter + 8
+                     stacklocation' = "-" ++ show counter' ++ "(%rbp)"
+                     hashmap' = Map.insert tmp1 stacklocation' hashmap
+                 in (stacklocation', counter', hashmap')
+    in
+        ("movq", ImmStr "True", stacklocation) : toStackHelper xs counter' hashmap'
         
 toStackHelper (("cmpq", ImmStr bool, tmp1):xs) counter hashmap =
   let (stacklocation, counter', hashmap') = (hashmap Map.! tmp1, counter, hashmap)
