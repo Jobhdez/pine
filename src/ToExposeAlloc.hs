@@ -4,7 +4,7 @@ import Parser
 
 data Assignment = Assi String Int Int deriving Show
 data IfExpose = IfExpose CndExpose Int CollectExpose deriving Show
-data Allocate = Alloc String Int String deriving Show
+data Allocate = Alloc String Int String  deriving Show
 data AllocAssign = AllocAssign String Int String deriving Show
 data Assignments = Assigns [Assignment] deriving Show
 data AllocAssignments = AllocAssigns [AllocAssign] deriving Show
