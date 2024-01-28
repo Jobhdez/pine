@@ -1,6 +1,8 @@
 module ToMon where
 
 import Parser
+import ToExposeAlloc
+
 import qualified Data.Map as Map
 
 data MonExp
@@ -8,6 +10,7 @@ data MonExp
     | AtmBool String
     | AtmVar String
     | MonNegative Int
+    | MonBegin Begin
     | MonPlus MonExp MonExp
     | MonWhile MonExp MonExp
     | MonMinus MonExp MonExp
@@ -42,7 +45,7 @@ toMon (PrintExp e) counter =
   let monexp = toMon e counter
   in
     MonPrint monexp
-    
+
 toMon (Var v) counter = AtmVar v
 toMon (Bool b) counter = AtmBool b
 toMon (Plus (Int e) (Int e2)) counter = MonPlus (toMon (Int e) counter) (toMon (Int e2) counter)
