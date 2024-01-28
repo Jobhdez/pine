@@ -15,7 +15,7 @@ example using this code:
 
 > makeTag [Left 1, Left 1, Left 3]
 --> 7
-
+--}
 data Tuple = Tuple deriving Show
 
 makeTag :: [Either Int Tuple] -> Int
