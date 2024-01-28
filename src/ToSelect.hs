@@ -66,14 +66,14 @@ toSelect (CBlock (x:xs)) =
   where
     rest = toSelect (CBlock xs)
     
-toSelectHelper :: (String, MonExp, String, String) -> [(String, Imm, String)]
+toSelectHelper :: (String, String, MonExp, String, String) -> [(String, Imm, String)]
 toSelectHelper s =
   case s of
-    ("start", MonLet var (AtmBool "True"), b1, b2) -> [("start", ImmStr "dummy", "dummy"), ("movq", ImmStr "True", var), ("cmpq", ImmStr "True", var), ("jmp", ImmStr b1, "dummy"), ("je", ImmStr b2, "dummy")]
-    (b1, AtmInt n, tmp, b2) -> [(b1, ImmStr "dummy", "dummy"), ("movq", ImmInt n, tmp)]
-    (b1, MonPrint (AtmInt n), tmp, b2) -> [(b1, ImmStr "dummy", "dummy"), ("movq", ImmInt n, "%rdi"), ("print", ImmStr "dummy", "dummy")]
-    (b1, MonPrint (AtmVar v), tmp, b2)  -> [(b1, ImmStr "dummy", "dummy"), ("movq", ImmStr v, "%rdi"), ("print", ImmStr "dummy", "dummy")]
-    (b1, SeqMon x y, tmp, b2) -> let ssexp = toSelect (SeqMon x y) in
+    (dummy, "start", MonLet var (AtmBool "True"), b1, b2) -> [("start", ImmStr "dummy", "dummy"), ("movq", ImmStr "True", var), ("cmpq", ImmStr "True", var), ("jmp", ImmStr b1, "dummy"), ("je", ImmStr b2, "dummy")]
+    (dummy, b1, AtmInt n, tmp, b2) -> [(b1, ImmStr "dummy", "dummy"), ("movq", ImmInt n, tmp)]
+    (dummy, b1, MonPrint (AtmInt n), tmp, b2) -> [(b1, ImmStr "dummy", "dummy"), ("movq", ImmInt n, "%rdi"), ("print", ImmStr "dummy", "dummy")]
+    (dummy, b1, MonPrint (AtmVar v), tmp, b2)  -> [(b1, ImmStr "dummy", "dummy"), ("movq", ImmStr v, "%rdi"), ("print", ImmStr "dummy", "dummy")]
+    (dummy, b1, SeqMon x y, tmp, b2) -> let ssexp = toSelect (SeqMon x y) in
       ssexp
-    (b1, MonLet var (AtmBool bool), tmp, b2) -> [("movq", ImmStr bool, var), ("cmpq", ImmStr bool, var), ("jmp", ImmStr b1, "dummy"), ("je", ImmStr b2, "dummy")]
-    
+    (b0, b1, MonLet var (AtmBool bool), tmp, b2) -> [(b0, ImmStr "blk", "blk"),("movq", ImmStr bool, var), ("cmpq", ImmStr bool, var), ("jmp", ImmStr b1, "dummy"), ("je", ImmStr b2, "dummy")]
+    (dummy, b1, AtmBool bool, tmp, b2) -> [(b1, ImmStr "$$block", "$$block"), ("movq", ImmStr bool, tmp)]
