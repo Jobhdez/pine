@@ -23,14 +23,13 @@ garbage collector needs to distinguish tuples from other data :-)
 --}
 data Tuple = Tuple deriving Show
 
-makeTag :: [Either Int Tuple] -> Int
-makeTag tuple =
-  let makePointerMask :: [Either Int Tuple] -> String -> String
-      makePointerMask [] str = reverse str
-      makePointerMask (x:xs) str =
-        case x of
-          Left _  -> makePointerMask xs ('0':str)
-          Right _ -> makePointerMask xs ('1':str)
+makeTag :: Int -> Int
+makeTag lengthTup =
+  let makePointerMask :: Int  -> Int -> String -> String
+      makePointerMask 0 counter str = reverse str
+      makePointerMask length counter str =
+        let str' = str ++ (show counter) in
+          str' ++ makePointerMask (length - 1) counter str'
       
       tupleLengthToBits :: Int -> String
       tupleLengthToBits len = let binaryStr = reverse (go len)
@@ -44,7 +43,7 @@ makeTag tuple =
           go [] _ = 0
           go (x:xs) n = (if x == '1' then 2 ^ n else 0) + go xs (n+1)
 
-  in let len = tupleLengthToBits (length tuple)
-         pointerMask = makePointerMask tuple ""
+  in let len = tupleLengthToBits lengthTup
+         pointerMask = makePointerMask lengthTup 0  ""
          fwdPtr = "1"
      in tagBitsToDecimal (pointerMask ++ len ++ fwdPtr)
