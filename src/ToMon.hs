@@ -9,22 +9,35 @@ data MonExp
     | AtmVar String
     | MonNegative Int
     | MonPlus MonExp MonExp
+    | MonWhile MonExp MonExp
     | MonMinus MonExp MonExp
     | MonLet String MonExp
     | SeqMon MonExp MonExp
     | MonIf MonExp MonExp MonExp
     | MonPrint MonExp
+    | MonLessThn MonExp MonExp
+    | MonGreaterThn MonExp MonExp
     | MonLstSeq MonExp MonExp MonExp
     | CBlock [(String, String, MonExp, String, String)]
     deriving Show
 
 toMon :: Exp -> Int -> MonExp
 toMon (Int n) counter = AtmInt n
+
+toMon (LessThn e e2) counter =
+  MonLessThn (toMon e counter) (toMon e2 counter)
+
+toMon (GreaterThn e e2) counter =
+  MonGreaterThn (toMon e counter) (toMon e2 counter)
+  
 toMon (Negative n) counter =
   let tmpname = "temp_" ++ show counter in
     let assi = MonLet tmpname (MonNegative n) in
       SeqMon assi (AtmVar tmpname)
-      
+
+toMon (While cnd exp) counter =
+  MonWhile (toMon cnd counter) (toMon exp counter)
+  
 toMon (PrintExp e) counter =
   let monexp = toMon e counter
   in
@@ -75,7 +88,8 @@ toMon (IfExp (IfExp cnd thn els) thn2 els2) counter =
           let counter4 = counter3 + 1 in
             MonLstSeq (MonLet tmpname (toMon cnd counter3)) (MonLet tmpname2 (toMon (IfExp (Var tmpname) thn els) counter4)) (toMon (IfExp (Var tmpname2) thn2 els2) counter4)
         
-  
+toMon (IfExp cnd thn els) counter =
+  MonIf (toMon cnd counter) (toMon thn counter) (toMon els counter)
 getMonLetNegative :: MonExp -> MonExp
 getMonLetNegative (SeqMon (MonLet s negative) (MonPlus e e2)) = (MonLet s negative)
 
@@ -93,13 +107,14 @@ toCLike (MonLstSeq (MonLet var b) (MonLet var2 (MonIf (AtmVar var3) thn els)) (M
               let block4 = "block_" ++ show counter4 in
                 CBlock [("NoBlock", "start", (MonLet var b), block, block2), (block, block3, (MonLet var2 thn), var, block4), (block2, block3, (MonLet var2 els), var, block4), ("isBlock", block3, thn2, var3, block4), ("isBlock", block4, els2, var3, "dummy")]
                 
-toCLike (MonIf (AtmBool b) thn els) counter =
+toCLike (MonIf b  thn els) counter =
   let block = "block_" ++ show counter in
     let tmpname = "temp_" ++ show counter in
       let tmpname2 = "temp_" ++ show (counter + 1) in
         let counter2 = counter + 1 in
           let block2 = "block_" ++ show counter2 in
-            CBlock [("dummy", "start", (MonLet tmpname (AtmBool b)), block, block2), ("dummy", block, thn, tmpname2, block2), ("dummy",block2, els, tmpname2, "dummy")]
-        
+            CBlock [("dummy", "start", (MonLet tmpname b), block, block2), ("dummy", block, thn, tmpname2, block2), ("dummy",block2, els, tmpname2, "dummy")]
+
 toCLike monexp counter =
   monexp
+
