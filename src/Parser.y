@@ -25,6 +25,8 @@ false      { TokenFalse $$}
 '-'        { TokenMinus }
 '('        { TokenOP }
 ')'        { TokenCP }
+']'        { TokenSqBR }
+'['        { TokenSqBL }
 '<'        { TokenLess }
 '>'        { TokenGreater }
 ':'        { TokenColon }
@@ -43,6 +45,8 @@ Exp : var  { Var $1 }
 | print '(' Exp ')' ';' { PrintExp $3 }
 | Exp ';' Exp  { Exps $1 $3 }
 | while Exp ':' Exp  { While $2 $4 }
+| '(' Exp ')'   { TupleExp $2 }
+| Exp '[' int ']'   { TupleIndex $1 $3 }
 | int  { Int $1 }
 | '-' int { Negative $2 }
 {
@@ -62,6 +66,8 @@ data Exp
   | GreaterThn Exp Exp
   | LessThn Exp Exp
   | While Exp Exp
+  | TupleExp Exp
+  | TupleIndex Exp Int
   | PrintExp Exp
   | Exps Exp Exp
   deriving Show
@@ -73,6 +79,8 @@ data Token
   | TokenElse
   | TokenWhile
   | TokenPrint
+  | TokenSqBL
+  | TokenSqBR
   | TokenInt Int
   | TokenVar String
   | TokenTrue String
@@ -101,6 +109,8 @@ lexer (':':cs) = TokenColon : lexer cs
 lexer ('(':cs) = TokenOP : lexer cs
 lexer (')':cs) = TokenCP : lexer cs
 lexer (';':cs) = TokenSemicolon : lexer cs
+lexer ('[':cs) = TokenSqBL : lexer cs
+lexer (']':cs) = TokenSqBR : lexer cs
 lexer ('<':cs) = TokenLess : lexer cs
 lexer ('>':cs) = TokenGreater : lexer cs
 
