@@ -1,5 +1,12 @@
 a compiler in development  ...
 
+So far this lowers:
+- if expressions
+- while loops
+- assignments
+- addition
+- tuples
+  
 ## Example
 The following is the most complex expression that I have tested. Note the the dummy arguments. Will fix that later.
 
