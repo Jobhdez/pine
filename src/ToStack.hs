@@ -105,6 +105,12 @@ toStackHelper (("cmpq", ImmStr bool, tmp1):xs) counter hashmap =
    in
      ("cmpq", ImmStr bool, stacklocation) : toStackHelper xs counter' hashmap'
 
+toStackHelper (("cmpq", ImmInt n, tmp1):xs) counter hashmap =
+  let (stacklocation, counter', hashmap') = (hashmap Map.! tmp1, counter, hashmap)
+       
+   in
+     ("cmpq", ImmInt n, stacklocation) : toStackHelper xs counter' hashmap'
+
 toStackHelper (("movq", ImmStr imm1, "%rdi"):xs) counter hashmap =
     let (stacklocation, counter', hashmap') =
             if Map.member imm1 hashmap
