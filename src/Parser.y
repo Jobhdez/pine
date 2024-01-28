@@ -25,6 +25,8 @@ false      { TokenFalse $$}
 '-'        { TokenMinus }
 '('        { TokenOP }
 ')'        { TokenCP }
+'<'        { TokenLess }
+'>'        { TokenGreater }
 ':'        { TokenColon }
 ';'        { TokenSemicolon }
 %%
@@ -33,12 +35,14 @@ Exp : var  { Var $1 }
 | let var '=' Exp ';' { Let $2 $4 }
 | Exp '+' Exp ';' { Plus $1 $3 }
 | Exp '-' Exp ';' { Minus $1 $3 }
+| Exp '<' Exp ';'   { LessThn $1 $3 }
+| Exp '>' Exp ';' { GreaterThn $1 $3 }
 | if Exp then Exp else Exp ';' { IfExp $2 $4 $6 }
 | true { Bool $1 }
 | false { Bool $1 }
 | print '(' Exp ')' ';' { PrintExp $3 }
-| while Exp ':' Exp ';' { While $2 $4 }
 | Exp ';' Exp  { Exps $1 $3 }
+| while Exp ':' Exp  { While $2 $4 }
 | int  { Int $1 }
 | '-' int { Negative $2 }
 {
@@ -55,6 +59,8 @@ data Exp
   | Plus Exp Exp
   | Minus Exp Exp
   | IfExp Exp Exp Exp
+  | GreaterThn Exp Exp
+  | LessThn Exp Exp
   | While Exp Exp
   | PrintExp Exp
   | Exps Exp Exp
@@ -72,6 +78,8 @@ data Token
   | TokenTrue String
   | TokenFalse String
   | TokenEq
+  | TokenLess
+  | TokenGreater
   | TokenPlus
   | TokenMinus
   | TokenOP
@@ -93,6 +101,8 @@ lexer (':':cs) = TokenColon : lexer cs
 lexer ('(':cs) = TokenOP : lexer cs
 lexer (')':cs) = TokenCP : lexer cs
 lexer (';':cs) = TokenSemicolon : lexer cs
+lexer ('<':cs) = TokenLess : lexer cs
+lexer ('>':cs) = TokenGreater : lexer cs
 
 lexNum cs = TokenInt (read num) : lexer rest
   where (num, rest) = span isDigit cs
