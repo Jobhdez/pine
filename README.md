@@ -3,7 +3,7 @@ a compiler in development  ...
 ## Examples
 ### If expressions
 ```haskell
-et toks = lexer "if True then print(1); else print(3);;"
+ghci> let toks = lexer "if True then print(1); else print(3);;"
 ghci> let ast = pyhs toks
 ghci> let mon = toMon ast 0
 ghci> mon
