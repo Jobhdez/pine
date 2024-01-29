@@ -1,7 +1,7 @@
 a compiler in development  ...
 
 ## Running the program
-I have added my source files to my `.cabal` file; nevertheless, you will need to install the `happy` parser generator:
+you will need to install the `happy` parser generator:
 
 ```
 * cabal install happy
@@ -13,7 +13,6 @@ After you install `happy` you need to clone the repo:
 * git clone git@github.com:Jobhdez/pyhs.git
 
 ```
-
 and then navigate to the `src/` directory and load the files. You can load the `ToSelect` module to run the examples
 below.
 
@@ -22,6 +21,7 @@ below.
 * ghci ToSelect.hs
 ```
 ## Examples
+
 ### If expressions
 ```haskell
 ghci> let toks = lexer "if True then print(1); else print(3);;"
@@ -49,6 +49,7 @@ ghci> toSelect clike
 ,("movq",ImmInt 3,ImmReg "%rdi")
 ,("print",ImmStr "dummy",ImmStr "dummy")]
 ```
+
 ## if exp nested in a while loop
 ```haskell
 >  let toks = lexer "let x = 0;; while x < 4;: if x < 3; then print(x);; let x = x + 1;; else print(3);;"
