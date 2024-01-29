@@ -11,6 +11,7 @@ data MonExp
     | AtmVar String
     | MonNegative Int
     | MonBegin Begin
+    | MonBlock String
     | MonPlus MonExp MonExp
     | MonWhile MonExp MonExp
     | MonMinus MonExp MonExp
@@ -118,6 +119,15 @@ toCLike (MonIf b  thn els) counter =
           let block2 = "block_" ++ show counter2 in
             CBlock [("dummy", "start", (MonLet tmpname b), block, block2), ("dummy", block, thn, tmpname2, block2), ("dummy",block2, els, tmpname2, "dummy")]
 
+
 toCLike monexp counter =
   monexp
-
+  
+toCLikewhile :: MonExp -> Int-> (String, String, MonExp, String, String) -> MonExp
+toCLikewhile (MonIf b  thn els) counter whiletest =
+  let block = "block_" ++ show counter in
+    let tmpname = "temp_" ++ show counter in
+      let tmpname2 = "temp_" ++ show (counter + 1) in
+        let counter2 = counter + 1 in
+          let block2 = "block_" ++ show counter2 in
+            CBlock [("dummy", "start", (MonLet tmpname b), block, block2), ("dummy", block, thn, tmpname2, block2), whiletest, ("dummy",block2, els, tmpname2, "dummy"), whiletest]
