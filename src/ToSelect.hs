@@ -91,7 +91,15 @@ toSelect (CBlock (x:xs)) =
   toSelectHelper x ++ rest
   where
     rest = toSelect (CBlock xs)
-    
+
+toSelect (MonBegin (Begin assignments (IfExpose cndexpose n collect) allocate allocassignments str)) =
+  let assigs = toSelectBeginAssignments assignments in
+    let cnd = toIfCndSelect cndexpose in
+      let collect' = collectToSelect collect in
+        let alloc = allocateToSelect allocate in
+          let allocassigns = toSelectBeginAllocAssigns allocassignments in
+            assigs ++ cnd ++ collect' ++ alloc ++ allocassigns
+            
 toSelectHelper :: (String, String, MonExp, String, String) -> [(String, Imm, Imm)]
 toSelectHelper s =
   case s of
@@ -109,7 +117,8 @@ toSelectHelper s =
       [(b1, ImmStr "$$block", ImmStr "$$block")] ++ cndss
     (dummy, b1, MonGreaterThn e e2, tmp, b2) -> let cndss = toSelect (MonGreaterThn e e2) in
       [(b1, ImmStr "$$block", ImmStr "$$block")] ++ cndss
-      
+
+    
 toSelectBeginAssignments :: Assignments -> [(String, Imm, Imm)]
 toSelectBeginAssignments (Assigns e) =
   toAssignmentsHelper e
