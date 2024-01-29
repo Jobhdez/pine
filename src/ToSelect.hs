@@ -105,7 +105,7 @@ toSelectHelper s =
   case s of
     (dummy, "start", MonLet var (AtmBool "True"), b1, b2) -> [("start", ImmStr "dummy", ImmStr "dummy"), ("movq", ImmStr "True", ImmStr var), ("cmpq", ImmStr "True", ImmStr var), ("jmp", ImmStr b1, ImmStr "dummy"), ("je", ImmStr b2, ImmStr "dummy")]
     (dummy, "start", MonLet var cnd, b1, b2) -> let cnd' = toSelect cnd in
-      [("start", ImmStr "dummy", ImmStr "dummy")] ++ cnd' ++ [("jmp", ImmStr b1, ImmStr "dummy"), ("je", ImmStr b2, ImmStr "dummy")]
+      cnd' ++ [("jmp", ImmStr b1, ImmStr "dummy"), ("je", ImmStr b2, ImmStr "dummy"), (b1, ImmStr "blkdummy", ImmStr "dummy")]
     (dummy, b1, AtmInt n, tmp, b2) -> [(b1, ImmStr "dummy", ImmStr "dummy"), ("movq", ImmInt n, ImmStr tmp)]
     (dummy, b1, MonPrint (AtmInt n), tmp, b2) -> [(b1, ImmStr "dummy", ImmStr "dummy"), ("movq", ImmInt n, ImmReg "%rdi"), ("print", ImmStr "dummy", ImmStr "dummy")]
     (dummy, b1, MonPrint (AtmVar n), tmp, b2) -> [(b1, ImmStr "dummy", ImmStr "dummy"), ("movq", ImmStr n, ImmReg "%rdi"), ("print", ImmStr "dummy", ImmStr "dummy")]
