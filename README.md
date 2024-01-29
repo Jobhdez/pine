@@ -11,10 +11,10 @@ The following is the most complex expression that I have tested. Note the the du
 
 [ ("movq", ImmInt 0, ImmStr "x")
 , ("loop", ImmStr "dummy", ImmStr "dummy")
-, ("start", ImmStr "dummy", ImmStr "dummy")
 , ("cmpq", ImmInt 3, ImmStr "x")
 , ("jmp", ImmStr "block_0", ImmStr "dummy")
 , ("je", ImmStr "block_1", ImmStr "dummy")
+, ("block_0", ImmStr "blkdummy", ImmStr "dummy")
 , ("movq", ImmStr "x", ImmReg "%rdi")
 , ("print", ImmStr "dummy", ImmStr "dummy")
 , ("movq", ImmInt 1, ImmStr "x")
