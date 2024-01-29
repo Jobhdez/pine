@@ -1,12 +1,5 @@
 a compiler in development  ...
 
-So far this lowers:
-- if expressions
-- while loops
-- assignments
-- addition
-- tuples
-  
 ## Example
 The following is the most complex expression that I have tested. Note the the dummy arguments. Will fix that later.
 
@@ -39,7 +32,7 @@ The following is the most complex expression that I have tested. Note the the du
 
 ## Example: tuple
 the tuple `(4 ; 5 ; 6)` lowers to the following x86 after the instruction selection phase:
-```
+```haskell
 [ ("movq", ImmInt 4, ImmStr "x0")
 , ("movq", ImmInt 5, ImmStr "x1")
 , ("movq", ImmInt 6, ImmStr "x2")
