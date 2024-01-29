@@ -64,10 +64,10 @@ toSelect (MonLet var (MonNegative n))  =
   [("movq", ImmInt n, ImmStr var), ("subq", ImmInt 0, ImmStr var)]
   
 toSelect (MonWhile cnd (MonIf cnd2 thn els)) =
-  let cif = toCLike (MonIf cnd2 thn els) 0 in
+  let cif = toCLikewhile (MonIf cnd2 thn els) 0 ("jmp", "to", MonBlock "whiletest", "thanks", ":)")in
     let cselect = toSelect cif in
       let selectcnd = toSelect cnd in
-        [("loop", ImmStr "dummy", ImmStr "dummy")] ++ cselect ++  [("test", ImmStr "tst", ImmStr "tstdummy")] ++ selectcnd ++ [("jg", ImmStr "loop", ImmStr "dummy")]
+      [("whiletest", ImmStr "whiletestlabel", ImmStr ":")] ++ selectcnd ++ [("jge", ImmStr "exit", ImmStr "dummy"), ("jmp", ImmStr "iftest", ImmStr "dummy")] ++ [("iftest", ImmStr "iftestlabel", ImmStr "dummy")] ++ cselect ++ [("exit", ImmStr "retq", ImmStr "dummy")]
         
 toSelect (MonWhile cnd exps) =
   let selectcnd = toSelect cnd in
@@ -117,7 +117,9 @@ toSelectHelper s =
       [(b1, ImmStr "$$block", ImmStr "$$block")] ++ cndss
     (dummy, b1, MonGreaterThn e e2, tmp, b2) -> let cndss = toSelect (MonGreaterThn e e2) in
       [(b1, ImmStr "$$block", ImmStr "$$block")] ++ cndss
-
+    ("jmp", "to", MonBlock whiletest, dummy, dummy2) -> [("jmp", ImmStr whiletest, ImmStr "thanks")]
+      
+      
     
 toSelectBeginAssignments :: Assignments -> [(String, Imm, Imm)]
 toSelectBeginAssignments (Assigns e) =
