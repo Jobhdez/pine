@@ -9,7 +9,6 @@ The following is the most complex expression that I have tested. Note the the du
 > let mon = toMon ast 0
 > toSelect mon
 
-
 [ ("movq", ImmInt 0, ImmStr "x")
 , ("loop", ImmStr "dummy", ImmStr "dummy")
 , ("start", ImmStr "dummy", ImmStr "dummy")
@@ -31,7 +30,9 @@ The following is the most complex expression that I have tested. Note the the du
 ```
 
 ## Example: tuple
+
 the tuple `(4 ; 5 ; 6)` lowers to the following x86 after the instruction selection phase:
+
 ```haskell
 [ ("movq", ImmInt 4, ImmStr "x0")
 , ("movq", ImmInt 5, ImmStr "x1")
