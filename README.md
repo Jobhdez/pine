@@ -31,28 +31,32 @@ ghci> toSelect clike
 
 
 ```haskell
-> let toks = lexer "let x = 0;; while x < 4;: if x < 3; then print(x);; let x = x + 1;; else print(3);;"
+>  let toks = lexer "let x = 0;; while x < 4;: if x < 3; then print(x);; let x = x + 1;; else print(3);;"
 > let ast = pyhs toks
 > let mon = toMon ast 0
 > toSelect mon
 
-[ ("movq", ImmInt 0, ImmStr "x")
-, ("loop", ImmStr "dummy", ImmStr "dummy")
-, ("cmpq", ImmInt 3, ImmStr "x")
-, ("jmp", ImmStr "block_0", ImmStr "dummy")
-, ("je", ImmStr "block_1", ImmStr "dummy")
-, ("block_0", ImmStr "blkdummy", ImmStr "dummy")
-, ("movq", ImmStr "x", ImmReg "%rdi")
-, ("print", ImmStr "dummy", ImmStr "dummy")
-, ("movq", ImmInt 1, ImmStr "x")
-, ("addq", ImmStr "x", ImmStr "x")
-, ("block_1", ImmStr "dummy", ImmStr "dummy")
-, ("movq", ImmInt 3, ImmReg "%rdi")
-, ("print", ImmStr "dummy", ImmStr "dummy")
-, ("test", ImmStr "tst", ImmStr "tstdummy")
-, ("cmpq", ImmInt 4, ImmStr "x")
-, ("jg", ImmStr "loop", ImmStr "dummy")
-]
+[("movq",ImmInt 0,ImmStr "x")
+,("whiletest",ImmStr "whiletestlabel",ImmStr ":")
+,("cmpq",ImmInt 4,ImmStr "x")
+,("jge",ImmStr "exit",ImmStr "dummy")
+,("jmp",ImmStr "iftest",ImmStr "dummy")
+,("iftest",ImmStr "iftestlabel",ImmStr "dummy")
+,("cmpq",ImmInt 3,ImmStr "x")
+,("jmp",ImmStr "block_0",ImmStr "dummy")
+,("je",ImmStr "block_1",ImmStr "dummy")
+,("block_0",ImmStr "blkdummy",ImmStr "dummy")
+,("movq",ImmStr "x",ImmReg "%rdi")
+,("print",ImmStr "dummy",ImmStr "dummy")
+,("movq",ImmInt 1,ImmStr "x")
+,("addq",ImmStr "x",ImmStr "x")
+,("jmp",ImmStr "whiletest",ImmStr "thanks")
+,("block_1",ImmStr "dummy",ImmStr "dummy")
+,("movq",ImmInt 3,ImmReg "%rdi")
+,("print",ImmStr "dummy",ImmStr "dummy")
+,("jmp",ImmStr "whiletest",ImmStr "thanks")
+,("exit",ImmStr "retq",ImmStr "dummy")]
+
 
 ```
 
