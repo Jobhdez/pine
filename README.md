@@ -23,8 +23,8 @@ below.
 ```
 ## Examples
 ### If expressions
-```
-et toks = lexer "if True then print(1); else print(3);;"
+```haskell
+ghci> let toks = lexer "if True then print(1); else print(3);;"
 ghci> let ast = pyhs toks
 ghci> let mon = toMon ast 0
 ghci> mon
@@ -49,8 +49,7 @@ ghci> toSelect clike
 ,("movq",ImmInt 3,ImmReg "%rdi")
 ,("print",ImmStr "dummy",ImmStr "dummy")]
 ```
-
-
+## if exp nested in a while loop
 ```haskell
 >  let toks = lexer "let x = 0;; while x < 4;: if x < 3; then print(x);; let x = x + 1;; else print(3);;"
 > let ast = pyhs toks
@@ -81,7 +80,7 @@ ghci> toSelect clike
 
 ```
 
-## Example: tuple
+## a tuple
 
 the tuple `(4 ; 5 ; 6)` lowers to the following x86 after the instruction selection phase:
 
