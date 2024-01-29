@@ -1,5 +1,26 @@
 a compiler in development  ...
 
+## Running the program
+I have added my source files to my `.cabal` file; nevertheless, you will need to install the `happy` parser generator:
+
+```
+* cabal install happy
+```
+
+After you install `happy` you need to clone the repo:
+
+```
+* git clone git@github.com:Jobhdez/pyhs.git
+
+```
+
+and then navigate to the `src/` directory and load the files. You can load the `ToSelect` module to run the examples
+below.
+
+```
+* cd pyhs/src
+* ghci ToSelect.hs
+```
 ## Examples
 ### If expressions
 ```
