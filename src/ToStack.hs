@@ -25,7 +25,7 @@ toStack [("movq", ImmInt n, var), ("subq", ImmInt n2, var2)] counter =
     let stacklocation = "-" ++ show counter ++ "(%rbp)" in
       [("movq", ImmStr (show n), stacklocation), ("subq", ImmStr (show n2), stacklocation)]
 --}
-data StackExp = StackInstrs [(String, Imm, String)] deriving Show
+data StackExp = StackInstrs [(String, Imm, Imm)] deriving Show
 
 toStack :: SelectExp -> StackExp
 toStack (Instructions ins) =
@@ -33,12 +33,12 @@ toStack (Instructions ins) =
   where
     outs = toStackHelper ins 0 Map.empty
 
-toStackHelper :: [(String, Imm, String)] -> Int -> Map.Map String String -> [(String, Imm, String)]
+toStackHelper :: [(String, Imm, Imm)] -> Int -> Map.Map String String -> [(String, Imm, Imm)]
 toStackHelper [] _ _ = []
-toStackHelper (("movq", ImmInt n, "%rdi"):xs) counter hashmap =
-  ("movq", ImmStr (show n), "%rdi") : toStackHelper xs counter hashmap
+toStackHelper (("movq", ImmInt n, ImmReg "%rdi"):xs) counter hashmap =
+  ("movq", ImmStr (show n), ImmReg "%rdi") : toStackHelper xs counter hashmap
   
-toStackHelper (("movq", ImmInt imm1, tmp1):xs) counter hashmap =
+toStackHelper (("movq", ImmInt imm1, ImmStr tmp1):xs) counter hashmap =
     let (stacklocation, counter', hashmap') =
             if Map.member tmp1 hashmap
             then (hashmap Map.! tmp1, counter, hashmap)
@@ -47,9 +47,9 @@ toStackHelper (("movq", ImmInt imm1, tmp1):xs) counter hashmap =
                      hashmap' = Map.insert tmp1 stacklocation' hashmap
                  in (stacklocation', counter', hashmap')
     in
-        ("movq", ImmStr (show imm1), stacklocation) : toStackHelper xs counter' hashmap'
+        ("movq", ImmStr (show imm1), ImmStack stacklocation) : toStackHelper xs counter' hashmap'
 
-toStackHelper (("addq", ImmInt imm1, tmp1):xs) counter hashmap =
+toStackHelper (("addq", ImmInt imm1, ImmStr tmp1):xs) counter hashmap =
   let (stacklocation, counter', hashmap') =
         if Map.member tmp1 hashmap
         then (hashmap Map.! tmp1, counter, hashmap)
@@ -58,15 +58,15 @@ toStackHelper (("addq", ImmInt imm1, tmp1):xs) counter hashmap =
                  hashmap' = Map.insert tmp1 stacklocation' hashmap
                in (stacklocation', counter', hashmap')
    in
-    ("addq", ImmStr (show imm1), stacklocation) : toStackHelper xs counter' hashmap'
+    ("addq", ImmStr (show imm1), ImmStack stacklocation) : toStackHelper xs counter' hashmap'
 
-toStackHelper (("addq", ImmStr imm1, tmp1):xs) counter hashmap =
+toStackHelper (("addq", ImmStr imm1, ImmStr tmp1):xs) counter hashmap =
   let (stacklocation, counter', hashmap', stacklocation2) = (hashmap Map.! tmp1, counter, hashmap, hashmap Map.! imm1)
        
    in
-     ("movq", ImmStr stacklocation, "%rax") : ("addq", ImmStr "%rax", stacklocation2) : toStackHelper xs counter' hashmap'
+     ("movq", ImmStr stacklocation, ImmReg "%rax") : ("addq", ImmReg "%rax", ImmStack stacklocation2) : toStackHelper xs counter' hashmap'
 
-toStackHelper (("subq", ImmInt n, tmp1):xs) counter hashmap =
+toStackHelper (("subq", ImmInt n, ImmStr tmp1):xs) counter hashmap =
   let (stacklocation, counter', hashmap') =
         if Map.member tmp1 hashmap
         then (hashmap Map.! tmp1, counter, hashmap)
@@ -75,9 +75,9 @@ toStackHelper (("subq", ImmInt n, tmp1):xs) counter hashmap =
                  hashmap' = Map.insert tmp1 stacklocation' hashmap
                in (stacklocation', counter', hashmap')
    in
-    ("subq", ImmStr "dummy", stacklocation) : toStackHelper xs counter' hashmap'
+    ("subq", ImmStr "dummy", ImmStack stacklocation) : toStackHelper xs counter' hashmap'
     
-toStackHelper (("movq", ImmStr "True", tmp1):xs) counter hashmap =
+toStackHelper (("movq", ImmStr "True", ImmStr tmp1):xs) counter hashmap =
     let (stacklocation, counter', hashmap') =
             if Map.member tmp1 hashmap
             then (hashmap Map.! tmp1, counter, hashmap)
@@ -86,9 +86,9 @@ toStackHelper (("movq", ImmStr "True", tmp1):xs) counter hashmap =
                      hashmap' = Map.insert tmp1 stacklocation' hashmap
                  in (stacklocation', counter', hashmap')
     in
-        ("movq", ImmStr "True", stacklocation) : toStackHelper xs counter' hashmap'
+        ("movq", ImmStr "True", ImmStack stacklocation) : toStackHelper xs counter' hashmap'
 
-toStackHelper (("movq", ImmStr "False", tmp1):xs) counter hashmap =
+toStackHelper (("movq", ImmStr "False", ImmStr tmp1):xs) counter hashmap =
     let (stacklocation, counter', hashmap') =
             if Map.member tmp1 hashmap
             then (hashmap Map.! tmp1, counter, hashmap)
@@ -97,21 +97,21 @@ toStackHelper (("movq", ImmStr "False", tmp1):xs) counter hashmap =
                      hashmap' = Map.insert tmp1 stacklocation' hashmap
                  in (stacklocation', counter', hashmap')
     in
-        ("movq", ImmStr "True", stacklocation) : toStackHelper xs counter' hashmap'
+        ("movq", ImmStr "True", ImmStack stacklocation) : toStackHelper xs counter' hashmap'
         
-toStackHelper (("cmpq", ImmStr bool, tmp1):xs) counter hashmap =
+toStackHelper (("cmpq", ImmStr bool, ImmStr tmp1):xs) counter hashmap =
   let (stacklocation, counter', hashmap') = (hashmap Map.! tmp1, counter, hashmap)
        
    in
-     ("cmpq", ImmStr bool, stacklocation) : toStackHelper xs counter' hashmap'
+     ("cmpq", ImmStr bool, ImmStack stacklocation) : toStackHelper xs counter' hashmap'
 
-toStackHelper (("cmpq", ImmInt n, tmp1):xs) counter hashmap =
+toStackHelper (("cmpq", ImmInt n, ImmStr tmp1):xs) counter hashmap =
   let (stacklocation, counter', hashmap') = (hashmap Map.! tmp1, counter, hashmap)
        
    in
-     ("cmpq", ImmInt n, stacklocation) : toStackHelper xs counter' hashmap'
+     ("cmpq", ImmInt n, ImmStack stacklocation) : toStackHelper xs counter' hashmap'
 
-toStackHelper (("movq", ImmStr imm1, "%rdi"):xs) counter hashmap =
+toStackHelper (("movq", ImmStr imm1, ImmReg "%rdi"):xs) counter hashmap =
     let (stacklocation, counter', hashmap') =
             if Map.member imm1 hashmap
             then (hashmap Map.! imm1, counter, hashmap)
@@ -120,12 +120,12 @@ toStackHelper (("movq", ImmStr imm1, "%rdi"):xs) counter hashmap =
                      hashmap' = Map.insert imm1 stacklocation' hashmap
                  in (stacklocation', counter', hashmap')
     in
-        ("movq", ImmStr stacklocation, "%rdi") : toStackHelper xs counter' hashmap'
+        ("movq", ImmStack stacklocation, ImmReg "%rdi") : toStackHelper xs counter' hashmap'
 
-toStackHelper (("print", ImmStr "dummy", "dummy"):xs) counter hashmap =
-  ("print", ImmStr "dummy", "dummy") : toStackHelper xs counter hashmap
+toStackHelper (("print", ImmStr "dummy", ImmStr "dummy"):xs) counter hashmap =
+  ("print", ImmStr "dummy", ImmStr "dummy") : toStackHelper xs counter hashmap
 
-toStackHelper (("movq", ImmStr v, v2):xs) counter hashmap =
+toStackHelper (("movq", ImmStr v, ImmStr v2):xs) counter hashmap =
    let (stacklocation, counter', hashmap', stacklocation2) =
             if Map.member v hashmap && not (Map.member v2 hashmap)
             then let counter' = counter + 8
@@ -135,7 +135,7 @@ toStackHelper (("movq", ImmStr v, v2):xs) counter hashmap =
                    (hashmap Map.! v, counter', hashmap', stacklocation2)
             else (hashmap Map.! v, counter, hashmap, hashmap Map.! v2)
     in
-     ("movq", ImmStr stacklocation, "%rax") : ("movq", ImmStr "%rax", stacklocation2) : toStackHelper xs counter' hashmap'
+     ("movq", ImmStack stacklocation, ImmReg "%rax") : ("movq", ImmReg "%rax", ImmStack stacklocation2) : toStackHelper xs counter' hashmap'
 
 toStackHelper (x:xs) counter hashmap =
   x : toStackHelper xs counter hashmap
