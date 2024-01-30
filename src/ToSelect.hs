@@ -5,7 +5,7 @@ import ToMon
 import ToExposeAlloc
 import Utils
 
-data Imm = ImmInt Int | ImmStr String | TupleMem String | ImmReg String deriving Show
+data Imm = ImmInt Int | ImmStr String | TupleMem String | ImmReg String | ImmStack String deriving Show
 
 data SelectExp =
   Instructions [(String, Imm, Imm)]
@@ -35,10 +35,13 @@ toSelect (MonGreaterThn (AtmVar n) (AtmInt n2)) =
   
 toSelect (MonPrint (AtmVar v)) =
   [("movq", ImmStr v, ImmReg "%rdi"), ("print", ImmStr "dummy", ImmStr "dummy")]
-  
+
 toSelect (MonPlus (AtmInt n) (AtmInt n2)) =
   [("movq", ImmInt n, ImmStr "tempvar"), ("addq", ImmInt n2, ImmStr "tempvar")]
 
+toSelect (MonPlus (AtmVar v) (AtmInt 1)) =
+  [("incq", ImmStr v, ImmStr "dummy")]
+  
 toSelect (MonPlus (AtmVar v) (AtmInt e))  =
   [("addq", ImmInt e, ImmStr v)]
 
