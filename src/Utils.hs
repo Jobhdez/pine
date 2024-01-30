@@ -57,3 +57,15 @@ runWhileIfexample input =
           let ss' = ("start", ImmStr "dummy", ImmStr "dummy") : ss in
             let stk = toStackHelper ss' 0 Map.empty in
               toX86' stk
+
+runWhileExample :: String -> String
+runWhileExample input =
+  let tokens = lexer input in
+    let ast = pyhs tokens in
+      let mon = toMon ast 0 in
+        let ss = toSelect mon in
+          let ss' = ("start", ImmStr "dummy", ImmStr "dummy") : ss in
+            let stk = toStackHelper ss' 0 Map.empty in
+              toX86' stk
+                    
+                    
