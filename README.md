@@ -66,7 +66,7 @@ ghci> toSelect clike
 
 ## if exp nested in a while loop
 ```haskell
->  let toks = lexer "let x = 0;; while x < 4;: if x < 3; then print(x);; let x = x + 1;; else print(3);;"
+>  let toks = lexer "let x = 0;; while x < 2;: if x < 3; then print(x);; let x = x + 1;; else print(3);;"
 > let ast = pyhs toks
 > let mon = toMon ast 0
 > toSelect mon
