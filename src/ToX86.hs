@@ -27,7 +27,7 @@ toX86W ("je", ImmStr block, ImmStr dummy) =
 toX86W ("jge", ImmStr block, ImmStr dummy) =
   "\tjge " ++ block ++ "\n" 
 toX86W ("exit", ImmStr "retq", ImmStr dmy) =
-  "exit:\n" ++ "\tretq\n"
+  "exit:\n" ++ "\taddq $8, %rsp\n" ++ "\tpopq %rbp\n" ++  "\tretq\n"
 toX86W ("movq", ImmStr n, ImmReg reg) =
   "\tmovq " ++ "$" ++ n ++ "," ++ reg ++ "\n"
 
@@ -44,7 +44,7 @@ toX86W ("cmpq", ImmInt n, ImmStack stk) =
     "\tcmpq $" ++ show n ++ ", " ++ stk ++ "\n"
 
 toX86W ("print", ImmStr dm, ImmStr dm2) =
-  "\tcallq " ++ "print_int\n"
+  "\tcallq " ++ "print_int\n" 
   
 toX86W (b1, ImmStr dm, ImmStr dm2)=
   b1 ++ ":\n"
