@@ -3,7 +3,6 @@ module ToSelect where
 import Parser
 import ToMon
 import ToExposeAlloc
-import Utils
 
 data Imm = ImmInt Int | ImmStr String | TupleMem String | ImmReg String | ImmStack String deriving Show
 
@@ -53,6 +52,9 @@ toSelect (MonLet var (AtmInt n)) =
 
 toSelect (MonLet var (AtmVar var2)) =
   [("movq", ImmStr var2, ImmStr var)]
+
+toSelect (MonLet var (MonPlus (AtmVar v) (AtmInt 1))) =
+  [("incq", ImmStr v, ImmStr "dummy")]
   
 toSelect (MonLet var (MonPlus (AtmInt n) (AtmInt n2))) =
   [("movq", ImmInt n, ImmStr var), ("addq", ImmInt n2, ImmStr var)]
@@ -121,7 +123,31 @@ toSelectHelper s =
     (dummy, b1, MonGreaterThn e e2, tmp, b2) -> let cndss = toSelect (MonGreaterThn e e2) in
       [(b1, ImmStr "$$block", ImmStr "$$block")] ++ cndss
     ("jmp", "to", MonBlock whiletest, dummy, dummy2) -> [("jmp", ImmStr whiletest, ImmStr "thanks")]
+
+makeTag :: Int -> Int
+makeTag lengthTup =
+  let makePointerMask :: Int  -> Int -> String -> String
+      makePointerMask 0 counter str = reverse str
+      makePointerMask length counter str =
+        let str' = str ++ (show counter) in
+          str' ++ makePointerMask (length - 1) counter str'
       
+      tupleLengthToBits :: Int -> String
+      tupleLengthToBits len = let binaryStr = reverse (go len)
+                                  go 0 = "0"
+                                  go n = if n `mod` 2 == 1 then '1' : go (n `div` 2) else '0' : go (n `div` 2)
+                              in replicate (6 - length binaryStr) '0' ++ binaryStr
+
+      tagBitsToDecimal :: String -> Int
+      tagBitsToDecimal bits = go (reverse bits) 0
+        where
+          go [] _ = 0
+          go (x:xs) n = (if x == '1' then 2 ^ n else 0) + go xs (n+1)
+
+  in let len = tupleLengthToBits lengthTup
+         pointerMask = makePointerMask lengthTup 0  ""
+         fwdPtr = "1"
+     in tagBitsToDecimal (pointerMask ++ len ++ fwdPtr)
       
     
 toSelectBeginAssignments :: Assignments -> [(String, Imm, Imm)]

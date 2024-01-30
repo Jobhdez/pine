@@ -1,4 +1,13 @@
 module Utils where
+import Parser
+import ToMon
+import ToSelect
+import ToStack
+import ToX86
+import qualified Data.Map as Map
+import qualified Data.Text as T
+import qualified Data.Text.IO as TIO
+import System.IO
 
 {-- example:
 suppose you have a tuple: (1,1,3).
@@ -21,29 +30,30 @@ example using this code:
 the tag 7 will be placed in front of the tuple. this is done because the
 garbage collector needs to distinguish tuples from other data :-)
 --}
-data Tuple = Tuple deriving Show
+writeToFile :: FilePath -> String -> IO ()
+writeToFile filePath content = do
+    -- Open the file in write mode and handle it
+    withFile filePath WriteMode $ \handle -> do
+        -- Convert the string to Text and write it to the file handle
+        TIO.hPutStr handle (T.pack content)
 
-makeTag :: Int -> Int
-makeTag lengthTup =
-  let makePointerMask :: Int  -> Int -> String -> String
-      makePointerMask 0 counter str = reverse str
-      makePointerMask length counter str =
-        let str' = str ++ (show counter) in
-          str' ++ makePointerMask (length - 1) counter str'
-      
-      tupleLengthToBits :: Int -> String
-      tupleLengthToBits len = let binaryStr = reverse (go len)
-                                  go 0 = "0"
-                                  go n = if n `mod` 2 == 1 then '1' : go (n `div` 2) else '0' : go (n `div` 2)
-                              in replicate (6 - length binaryStr) '0' ++ binaryStr
+runifexample :: String -> String
+runifexample input =
+  let tokens = lexer input in
+    let ast = pyhs tokens in
+      let mon = toMon ast 0 in
+        let clike = toCLike mon 0 in
+          let ss = toSelect clike in
+            let stk = toStackHelper ss 0 Map.empty in
+              let asm = toX86 stk in
+                asm
 
-      tagBitsToDecimal :: String -> Int
-      tagBitsToDecimal bits = go (reverse bits) 0
-        where
-          go [] _ = 0
-          go (x:xs) n = (if x == '1' then 2 ^ n else 0) + go xs (n+1)
-
-  in let len = tupleLengthToBits lengthTup
-         pointerMask = makePointerMask lengthTup 0  ""
-         fwdPtr = "1"
-     in tagBitsToDecimal (pointerMask ++ len ++ fwdPtr)
+runWhileIfexample :: String -> String
+runWhileIfexample input =
+  let tokens = lexer input in
+    let ast = pyhs tokens in
+      let mon = toMon ast 0 in
+        let ss = toSelect mon in
+          let ss' = ("start", ImmStr "dummy", ImmStr "dummy") : ss in
+            let stk = toStackHelper ss' 0 Map.empty in
+              toX86 stk
