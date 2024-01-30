@@ -22,6 +22,20 @@ below.
 ```
 ## Examples
 
+So far you can compile an expression such as `if True then print(2); else print(3);;`
+
+To generate the assembly for `if True then print(2); else print(3);;` do the following:
+
+```
+* cd pyhs/src
+* gcc -c -g -std=c99 runtime.c
+* ghci ToX86.hs
+ghci> ToX86.main
+ghci> :q
+* gcc -g runtime.o ifasm.s
+* ./a.out
+```
+
 ### If expressions
 ```haskell
 ghci> let toks = lexer "if True then print(1); else print(3);;"
