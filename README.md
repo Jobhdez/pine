@@ -54,8 +54,22 @@ ghci> :q
 * gcc -g runtime.o ifasm.s
 * ./a.out
 ```
+And I have teated this program 
+```
+let x = 0;; while x < 5;: print(x);; let x = x + 1;;
+```
+To generate the assembly for this program:
+```
+* cd pyhs/src
+* gcc -c -g -std=c99 runtime.c
+* ghci WhileExample.hs
+ghci> main
+ghci> :q
+* gcc -g runtime.o whileeg.s
+* ./a.out
+```
 ## a tuple
-
+So far only an AST is generated for tuples.
 the tuple `(4 ; 5 ; 6)` lowers to the following x86 after the instruction selection phase:
 
 ```haskell
