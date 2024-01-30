@@ -22,9 +22,9 @@ below.
 ```
 ## Examples
 
-So far you can compile an expression such as "if True then print(2); else print(3);;"
+So far you can compile an expression such as `if True then print(2); else print(3);;`
 
-To generate the assembly for "if True then print(1); else print(3);;" do the following:
+To generate the assembly for `if True then print(2); else print(3);;` do the following:
 
 ```
 * cd pyhs/src
