@@ -22,7 +22,8 @@ below.
 ```
 ## Examples
 
-So far it can compile expressions such as this one:
+So far it can compile the following expressions:
+
 ```
 let x = 0;; while x < 4;: if x < 5; then print(x);; let x = x + 1;; else print(3);;
 ```
@@ -54,7 +55,7 @@ ghci> :q
 * gcc -g runtime.o ifasm.s
 * ./a.out
 ```
-And I have teated this program 
+And I have also tested this program 
 ```
 let x = 0;; while x < 5;: print(x);; let x = x + 1;;
 ```
