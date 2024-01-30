@@ -56,4 +56,4 @@ runWhileIfexample input =
         let ss = toSelect mon in
           let ss' = ("start", ImmStr "dummy", ImmStr "dummy") : ss in
             let stk = toStackHelper ss' 0 Map.empty in
-              toX86 stk
+              toX86' stk
