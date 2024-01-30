@@ -22,4 +22,6 @@ block_1:
 	callq print_int
 	jmp whiletest
 exit:
+	addq $8, %rsp
+	popq %rbp
 	retq
