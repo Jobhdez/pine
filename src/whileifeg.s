@@ -9,22 +9,17 @@ whiletest:
 	jge exit
 	jmp iftest
 iftest:
-	cmpq $3, -8(%rbp)
+	cmpq $5, -8(%rbp)
 	jmp block_0
 	je block_1
 block_0:
-	movq $-8(%rbp), %rdi
+	movq -8(%rbp), %rdi
 	callq print_int
-	addq $8, %rsp
-	popq %rbp
-	retq
-	incq stk
+	incq -8(%rbp)
 	jmp whiletest
 block_1:
 	movq $3,%rdi
 	callq print_int
-	addq $8, %rsp
-	popq %rbp
-	retq
 	jmp whiletest
 exit:
+	retq
