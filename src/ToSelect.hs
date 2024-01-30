@@ -77,7 +77,8 @@ toSelect (MonWhile cnd (MonIf cnd2 thn els)) =
 toSelect (MonWhile cnd exps) =
   let selectcnd = toSelect cnd in
     let selectexps = toSelect exps in
-      [("loop", ImmStr "dummy", ImmStr "dummy")] ++ selectexps ++ [("test", ImmStr "tst", ImmStr "tstdummy")] ++ selectcnd ++ [("jg", ImmStr "loop", ImmStr "dummy")]
+      [("whiletest", ImmStr "dummy", ImmStr "dummy")] ++ selectcnd ++ [("jge", ImmStr "exit", ImmStr "dummy"), ("jmp", ImmStr "loop", ImmStr "dummy")]++[("loop", ImmStr "tst", ImmStr "tstdummy")] ++ selectexps ++ [("jmp", ImmStr "whiletest", ImmStr "dummy")] ++ [("exit", ImmStr "retq", ImmStr "dummy")]
+                                                                                                                                                                                                                                                                       
         
 toSelect (SeqMon (MonLet var e) (MonLet var2 (MonPlus e2 e3)))  =
   -- e.g., let x = 4;; let y = 3 + 4;;
