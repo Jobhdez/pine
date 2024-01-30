@@ -22,50 +22,38 @@ below.
 ```
 ## Examples
 
-So far you can compile an expression such as `if True then print(2); else print(3);;`
+So far it can compile expressions such as this one:
+```
+let x = 0;; while x < 4;: if x < 5; then print(x);; let x = x + 1;; else print(3);;
+```
+You can generate the assembly file for the above program by:
+
+```
+* cd pyhs/src
+* gcc -c -g -std=c99 runtime.c
+* ghci WhileIfExample.hs
+ghci> main
+ghci> :q
+* gcc -g runtime.o whileifeg.s
+* ./a.out
+```
+You can also compile an expression such as
+
+```
+if True then print(2); else print(3);;
+```
 
 To generate the assembly for `if True then print(2); else print(3);;` do the following:
 
 ```
 * cd pyhs/src
 * gcc -c -g -std=c99 runtime.c
-* ghci ToX86.hs
-ghci> ToX86.main
+* ghci IExpExample.hs
+ghci> main
 ghci> :q
 * gcc -g runtime.o ifasm.s
 * ./a.out
 ```
-
-### If expressions
-```haskell
-ghci> let toks = lexer "if True then print(1); else print(3);;"
-ghci> let ast = pyhs toks
-ghci> let mon = toMon ast 0
-ghci> mon
-MonIf (AtmBool "True") (MonPrint (AtmInt 1)) (MonPrint (AtmInt 3))
-ghci> let clike = toCLike mon 0
-ghci> clike
-CBlock [("dummy","start",MonLet "temp_0" (AtmBool "True"),"block_0","block_1"),
-        ("dummy","block_0",MonPrint (AtmInt 1),"temp_1","block_1"),
-	("dummy","block_1",MonPrint (AtmInt 3),"temp_1","dummy")]
-
-ghci> toSelect clike
-
-[("start",ImmStr "dummy",ImmStr "dummy")
-,("movq",ImmStr "True",ImmStr "temp_0")
-,("cmpq",ImmStr "True",ImmStr "temp_0")
-,("jmp",ImmStr "block_0",ImmStr "dummy")
-,("je",ImmStr "block_1",ImmStr "dummy")
-,("block_0",ImmStr "dummy",ImmStr "dummy")
-,("movq",ImmInt 1,ImmReg "%rdi")
-,("print",ImmStr "dummy",ImmStr "dummy")
-,("block_1",ImmStr "dummy",ImmStr "dummy")
-,("movq",ImmInt 3,ImmReg "%rdi")
-,("print",ImmStr "dummy",ImmStr "dummy")]
-```
-
-
-
 ## a tuple
 
 the tuple `(4 ; 5 ; 6)` lowers to the following x86 after the instruction selection phase:
