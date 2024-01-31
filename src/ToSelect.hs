@@ -125,6 +125,28 @@ toSelectHelper s =
       [(b1, ImmStr "$$block", ImmStr "$$block")] ++ cndss
     ("jmp", "to", MonBlock whiletest, dummy, dummy2) -> [("jmp", ImmStr whiletest, ImmStr "thanks")]
 
+{-- example:
+suppose you have a tuple: (1,1,3).
+
+the 64 bit tag for this tuple would be 000 000011 1. You dont actually need
+the whole 64 bits. In assembly I will be using instructions that manipulate
+64 bits.
+
+the first three 0 bits are 0s because when processing a tuple you assign
+a 0 bit to a integer and 1 to a tuple.
+
+000011 on the other hand is the length of the tuple. in this case 3.
+
+the last bit represents whether its reachable from the root set.
+
+example using this code:
+
+> makeTag [Left 1, Left 1, Left 3]
+--> 7
+the tag 7 will be placed in front of the tuple. this is done because the
+garbage collector needs to distinguish tuples from other data :-)
+--}
+
 makeTag :: Int -> Int
 makeTag lengthTup =
   let makePointerMask :: Int  -> Int -> String -> String
