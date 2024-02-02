@@ -4,6 +4,11 @@ import Parser
 import ToMon
 import ToExposeAlloc
 
+{--
+This module takes the ANF AST and builds up the x86 instructions but with variables instead of stack locations.
+This is the instruction selection phase.
+--}
+
 data Imm = ImmInt Int | ImmStr String | TupleMem String | ImmReg String | ImmStack String deriving Show
 
 data SelectExp =
