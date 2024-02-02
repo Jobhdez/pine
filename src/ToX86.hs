@@ -10,7 +10,7 @@ toX86' (x:xs) =
   toX86W x ++ toX86' xs
 toX86W :: (String, Imm, Imm) -> String
 toX86W ("start", ImmStr dummy, ImmStr dummy2) =
-  ".globl main\n" ++ "main:\n" ++ "\tpushq %rbp\n" ++ "\tmovq %rsp, %rbp\n" ++ "\tsubq $8, %rsp\n" 
+  "\t.globl main\n" ++ "main:\n" ++ "\tpushq %rbp\n" ++ "\tmovq %rsp, %rbp\n" ++ "\tsubq $8, %rsp\n" 
 
 toX86W ("movq", ImmStr "True", ImmStack stack) =
   "\tmovq $1, " ++ stack ++ "\n" 
