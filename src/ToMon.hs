@@ -5,6 +5,11 @@ import ToExposeAlloc
 
 import qualified Data.Map as Map
 
+{--
+This module takes the syntax AST and turns it to basically A normal form. If you are 
+interested you should check out this blog post by dr. might: https://matt.might.net/articles/a-normalization/
+--}
+
 data MonExp
     = AtmInt Int
     | AtmBool String
