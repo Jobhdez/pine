@@ -4,6 +4,9 @@ import Parser
 import ToMon
 import ToSelect
 import qualified Data.Map as Map
+
+-- Takes the AST created by the instruction selection pass and replaces variables for stack locations. --
+
 {--
 toStack :: [(String, Imm, String)] -> Int -> Map.Map k a -> [(String, Imm, String)]
 toStack [("movq", ImmInt n, tmp), ("addq", ImmInt n2, tmp2)] counter hashmap =
