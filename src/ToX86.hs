@@ -4,10 +4,15 @@ import Parser
 import ToMon
 import ToSelect
 import qualified Data.Map as Map
+
+-- this module turns the AST from the ToStack pass into a string representation of the x86 instructions.
+
 toX86' :: [(String, Imm, Imm)] -> String
 toX86' [] = ""
+
 toX86' (x:xs) =
   toX86W x ++ toX86' xs
+  
 toX86W :: (String, Imm, Imm) -> String
 toX86W ("start", ImmStr dummy, ImmStr dummy2) =
   "\t.globl main\n" ++ "main:\n" ++ "\tpushq %rbp\n" ++ "\tmovq %rsp, %rbp\n" ++ "\tsubq $8, %rsp\n" 
@@ -26,8 +31,10 @@ toX86W ("je", ImmStr block, ImmStr dummy) =
 
 toX86W ("jge", ImmStr block, ImmStr dummy) =
   "\tjge " ++ block ++ "\n" 
+  
 toX86W ("exit", ImmStr "retq", ImmStr dmy) =
   "exit:\n" ++ "\taddq $8, %rsp\n" ++ "\tpopq %rbp\n" ++  "\tretq\n"
+  
 toX86W ("movq", ImmStr n, ImmReg reg) =
   "\tmovq " ++ "$" ++ n ++ "," ++ reg ++ "\n"
 
@@ -51,8 +58,10 @@ toX86W (b1, ImmStr dm, ImmStr dm2)=
   
 toX86 :: [(String, Imm, Imm)] -> String
 toX86 [] = ""
+
 toX86 (x:xs) =
   toX86Helper x ++ toX86 xs
+  
 toX86Helper :: (String, Imm, Imm) -> String
 toX86Helper ("start", ImmStr dummy, ImmStr dummy2) =
   ".globl main\n" ++ "main:\n" ++ "\tpushq %rbp\n" ++ "\tmovq %rsp, %rbp\n" ++ "\tsubq $8, %rsp\n" 
@@ -89,6 +98,7 @@ toX86Helper ("cmpq", ImmInt n, ImmStack stk) =
 
 toX86Helper ("print", ImmStr dm, ImmStr dm2) =
   "\tcallq " ++ "print_int\n" ++ "\taddq $8, %rsp\n" ++ "\tpopq %rbp\n" ++ "\tretq\n" 
+  
 toX86Helper (b1, ImmStr dm, ImmStr dm2)=
   b1 ++ ":\n"
   
