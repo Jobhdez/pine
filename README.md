@@ -70,7 +70,7 @@ ghci> :q
 * ./a.out
 ```
 ## Tuples
-So far I can only compiler the expression `(42)`, i.e., a tuple of one element. The example generates code for essentially: `print((42)[0])`.
+So far I can only compile the expression `(42)`, i.e., a tuple of one element. The example generates code for essentially: `print((42)[0])`.
 
 To file `tuple.s` is the generated code from the expression `(42)`.
 
