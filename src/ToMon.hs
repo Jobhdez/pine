@@ -21,6 +21,7 @@ data MonExp
     | MonWhile MonExp MonExp
     | MonMinus MonExp MonExp
     | MonLet String MonExp
+    | MonTupIndex String Int
     | SeqMon MonExp MonExp
     | MonIf MonExp MonExp MonExp
     | MonPrint MonExp
@@ -136,3 +137,10 @@ toCLikewhile (MonIf b  thn els) counter whiletest =
         let counter2 = counter + 1 in
           let block2 = "block_" ++ show counter2 in
             CBlock [("dummy", "start", (MonLet tmpname b), block, block2), ("dummy", block, thn, tmpname2, block2), whiletest, ("dummy",block2, els, tmpname2, "dummy"), whiletest]
+
+toMonBgn :: Exp -> MonExp
+toMonBgn (Exps (Let var (TupleExp exps)) (PrintExp (TupleIndex (Var var2) index))) =
+  let bgn = makeBegin (TupleExp exps) in
+    let monbgn = MonBegin bgn in
+      let montupindex = MonTupIndex var2 index in
+        SeqMon (MonLet var monbgn) (MonPrint montupindex)
