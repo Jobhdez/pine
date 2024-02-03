@@ -25,12 +25,11 @@ compile (IfExp cnd thn els) =
           let asm = toX86 stk in
             asm
             
-compile (TupleExp n) =
-  let bgn = makeBegin (TupleExp n) in
-    let mon = MonBegin bgn in
-      let ss = toSelect mon in
-        let ss' = ("main", ImmStr "dummy", ImmStr "dummy") : ss in
-          toX86t' ss'
+compile (Exps (Let var (TupleExp exps)) (PrintExp (TupleIndex (Var var2) index))) =
+  let mon = toMonBgn  (Exps (Let var (TupleExp exps)) (PrintExp (TupleIndex (Var var2) index))) in
+    let ss = toSelect mon in
+      let ss' = ("main", ImmStr "dummy", ImmStr "dummy") : ss in
+        toX86t' ss'
           
 compile exp =
   let mon = toMon exp 0 in
