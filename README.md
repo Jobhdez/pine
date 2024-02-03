@@ -49,7 +49,7 @@ To generate the assembly for `if True then print(2); else print(3);;` do the fol
 ```
 * cd pyhs/src
 * gcc -c -g -std=c99 runtime.c
-* ghci IExpExample.hs
+* ghci IfExpExample.hs
 ghci> main
 ghci> :q
 * gcc -g runtime.o ifasm.s
