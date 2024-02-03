@@ -5,7 +5,7 @@ import Parser
 data Assignment = Assi String Int Int deriving Show
 data IfExpose = IfExpose CndExpose Int CollectExpose deriving Show
 data Allocate = Alloc String Int String  deriving Show
-data AllocAssign = AllocAssign String Int String deriving Show
+data AllocAssign = AllocAssign String Int String Int deriving Show
 data Assignments = Assigns [Assignment] deriving Show
 data AllocAssignments = AllocAssigns [AllocAssign] deriving Show
 
@@ -60,4 +60,4 @@ makeallocation assignments  =
 makeallocationshelper :: Assignments -> Int -> [AllocAssign]
 makeallocationshelper (Assigns []) counter = []
 makeallocationshelper (Assigns ((Assi var index n): xs)) counter =
-  AllocAssign "tuple" counter var : makeallocationshelper (Assigns xs) (counter+1)
+  AllocAssign "tuple" counter var n : makeallocationshelper (Assigns xs) (counter+1)
