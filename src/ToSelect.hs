@@ -109,8 +109,8 @@ toSelect (MonBegin (Begin assignments (IfExpose cndexpose n collect) allocate al
       let collect' = collectToSelect collect in
         let alloc = allocateToSelect allocate in
           let allocassigns = toSelectBeginAllocAssigns allocassignments in
-            assigs ++ cnd ++ collect' ++ alloc ++ allocassigns
-            
+            [("start", ImmStr "dummy", ImmStr "dummy")] ++ cnd ++ [("block_77", ImmStr "dummy", ImmStr "dummy")] ++ [("movq", ImmInt 0, ImmReg "%r13"), ("jmp", ImmStr "block_80", ImmStr "dummy")] ++ [("block_78", ImmStr "dummy", ImmStr "dummy")]++  collect' ++ [("jmp", ImmStr "block_80", ImmStr "dummy")] ++ [("block_80", ImmStr "dummy", ImmStr "dummy")] ++ alloc ++ allocassigns ++ [("callq", ImmStr "print_int", ImmStr "dummy")] ++ [("jmp", ImmStr "conclusion", ImmStr "dummy")] ++ [("conclusion", ImmStr "dummy", ImmStr "dummy")] ++ [("subq", ImmInt 8, ImmReg "%r15"), ("addq", ImmInt 0, ImmReg "%rsp"), ("popq", ImmReg "%rbp", ImmStr "dummy"), ("retq", ImmStr "dummy", ImmStr "dummy")]
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
 toSelectHelper :: (String, String, MonExp, String, String) -> [(String, Imm, Imm)]
 toSelectHelper s =
   case s of
@@ -193,20 +193,20 @@ toSelectBeginAllocAssigns (AllocAssigns assi) =
 
 toAllocAssiHelper :: [AllocAssign] -> [(String, Imm, Imm)]
 toAllocAssiHelper [] = []
-toAllocAssiHelper ((AllocAssign tuplename index var):xs) =
+toAllocAssiHelper ((AllocAssign tuplename index var val):xs) =
   let n = 8 * (index + 1) in
     let tupmem = show n ++ "(%r11)" in
-      ("movq", ImmStr tuplename, ImmReg "%r11"):("movq", ImmStr var, TupleMem tupmem) : toAllocAssiHelper xs
+      ("movq", ImmInt val, TupleMem tupmem) : ("movq", TupleMem tupmem, ImmReg "%rdi") : toAllocAssiHelper xs
 
 toIfCndSelect :: CndExpose -> [(String, Imm, Imm)]
 toIfCndSelect (GlobalValue free_ptr bytes from_space) =
-  [("movq", ImmStr "free_ptr_0", ImmReg "%rax"), ("addq", ImmInt bytes, ImmReg "%rax"), ("movq", ImmStr "fromspace_end(%rip)", ImmStr "fromSpace0"), ("cmpq", ImmStr "fromspace0", ImmReg "%rax"), ("jl", ImmStr "block_77", ImmStr "dummy"), ("jmp", ImmStr "block_78", ImmStr "dummy")]
+  [("movq", ImmStr "free_ptr(%rip)", ImmReg "%rax"), ("addq", ImmInt bytes, ImmReg "%rax"), ("movq", ImmStr "fromspace_end(%rip)", ImmReg "%r13"), ("cmpq", ImmReg "%r13", ImmReg "%rax"), ("jl", ImmStr "block_77", ImmStr "dummy"), ("jmp", ImmStr "block_78", ImmStr "dummy")]
 
 allocateToSelect :: Allocate -> [(String, Imm, Imm)]
 allocateToSelect (Alloc lhs len tuptype) =
   let tag = makeTag len in
-    [("movq", ImmStr "free_ptr(%rip)", ImmReg "%r11"), ("addq", ImmInt (8 * (len + 1)), ImmStr "free_ptr(%rip)"), ("movq", ImmInt tag, TupleMem "0(%r11)"), ("movq", ImmReg "%r11", ImmStr lhs)]
+    [("movq", ImmStr "free_ptr(%rip)", ImmReg "%r11"), ("addq", ImmInt (8 * (len + 1)), ImmStr "free_ptr(%rip)"), ("movq", ImmInt tag, TupleMem "0(%r11)"), ("movq", ImmReg "%r11", ImmReg "%r14"), ("movq", ImmReg "%r14", ImmReg "%r11")]
 
 collectToSelect :: CollectExpose -> [(String, Imm, Imm)]
 collectToSelect (Collect bytes) =
-  [("movq", ImmReg "%r11", ImmReg "%rdi"), ("movq", ImmInt bytes, ImmReg "%rsi"), ("callq", ImmStr "collect", ImmStr "dummy")]
+  [("movq", ImmReg "%r15", ImmReg "%rdi"), ("movq", ImmInt bytes, ImmReg "%rsi"), ("callq", ImmStr "collect", ImmStr "dummy")]
