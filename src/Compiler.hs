@@ -43,7 +43,5 @@ compile exp =
   
 writeToFile :: FilePath -> String -> IO ()
 writeToFile filePath content = do
-    -- Open the file in write mode and handle it
     withFile filePath WriteMode $ \handle -> do
-        -- Convert the string to Text and write it to the file handle
         TIO.hPutStr handle (T.pack content)
