@@ -1,5 +1,6 @@
 module Compiler where
 import Parser
+import ToExposeAlloc
 import ToMon
 import ToSelect
 import ToStack
@@ -23,7 +24,14 @@ compile (IfExp cnd thn els) =
         let stk = toStackHelper ss 0 Map.empty in
           let asm = toX86 stk in
             asm
-
+            
+compile (TupleExp n) =
+  let bgn = makeBegin (TupleExp n) in
+    let mon = MonBegin bgn in
+      let ss = toSelect mon in
+        let ss' = ("main", ImmStr "dummy", ImmStr "dummy") : ss in
+          toX86t' ss'
+          
 compile exp =
   let mon = toMon exp 0 in
     let ss = toSelect mon in
