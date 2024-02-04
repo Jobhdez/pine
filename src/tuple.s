@@ -12,7 +12,7 @@ main:
 	jmp start
 start:
 	movq free_ptr(%rip),%rax
-	addq $8, %rax
+	addq $24, %rax
 	movq fromspace_end(%rip),%r13
 	cmpq %r13,%rax
 	jl block_77
@@ -22,17 +22,19 @@ block_77:
 	jmp block_80
 block_78:
 	movq %r15,%rdi
-	movq $8,%rsi
+	movq $24,%rsi
 	callq collect
 	jmp block_80
 block_80:
 	movq free_ptr(%rip),%r11
-	addq $16, free_ptr(%rip)
-	movq $3,0(%r11)
+	addq $32, free_ptr(%rip)
+	movq $7,0(%r11)
 	movq %r11,%r14
 	movq %r14,%r11
-	movq $42,8(%r11)
-	movq 8(%r11),%rdi
+	movq $4,8(%r11)
+	movq $5,16(%r11)
+	movq $6,24(%r11)
+	movq 16(%r11),%rdi
 	callq print_int
 	jmp conclusion
 conclusion:

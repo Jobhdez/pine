@@ -40,6 +40,11 @@ toSelect (MonGreaterThn (AtmVar n) (AtmInt n2)) =
 toSelect (MonPrint (AtmVar v)) =
   [("movq", ImmStr v, ImmReg "%rdi"), ("print", ImmStr "dummy", ImmStr "dummy")]
 
+toSelect (MonPrint (MonTupIndex var2 index)) =
+  let mem = 8 * (index + 1) in
+    let memt = show mem ++ "(%r11)" in
+      [("movq", TupleMem memt, ImmReg "%rdi"), ("callq", ImmStr "print_int", ImmStr "dummy")]
+
 toSelect (MonPlus (AtmInt n) (AtmInt n2)) =
   [("movq", ImmInt n, ImmStr "tempvar"), ("addq", ImmInt n2, ImmStr "tempvar")]
 
@@ -84,7 +89,15 @@ toSelect (MonWhile cnd exps) =
     let selectexps = toSelect exps in
       [("whiletest", ImmStr "dummy", ImmStr "dummy")] ++ selectcnd ++ [("jge", ImmStr "exit", ImmStr "dummy"), ("jmp", ImmStr "loop", ImmStr "dummy")]++[("loop", ImmStr "tst", ImmStr "tstdummy")] ++ selectexps ++ [("jmp", ImmStr "whiletest", ImmStr "dummy")] ++ [("exit", ImmStr "retq", ImmStr "dummy")]
                                                                                                                                                                                                                                                                        
-        
+toSelect (SeqMon (MonLet var (MonBegin (Begin assignments (IfExpose cndexpose n collect) allocate allocassignments str))) (MonPrint (MonTupIndex var2 index))) =
+  let assigs = toSelectBeginAssignments assignments in
+    let cnd = toIfCndSelect cndexpose in
+      let collect' = collectToSelect collect in
+        let alloc = allocateToSelect allocate in
+          let allocassigns = toSelectBeginAllocAssigns allocassignments in
+            let printindex = toSelect (MonPrint (MonTupIndex var2 index)) in
+              [("start", ImmStr "dummy", ImmStr "dummy")] ++ cnd ++ [("block_77", ImmStr "dummy", ImmStr "dummy")] ++ [("movq", ImmInt 0, ImmReg "%r13"), ("jmp", ImmStr "block_80", ImmStr "dummy")] ++ [("block_78", ImmStr "dummy", ImmStr "dummy")]++  collect' ++ [("jmp", ImmStr "block_80", ImmStr "dummy")] ++ [("block_80", ImmStr "dummy", ImmStr "dummy")] ++ alloc ++ allocassigns ++ printindex ++ [("jmp", ImmStr "conclusion", ImmStr "dummy")] ++ [("conclusion", ImmStr "dummy", ImmStr "dummy")] ++ [("subq", ImmInt 8, ImmReg "%r15"), ("addq", ImmInt 0, ImmReg "%rsp"), ("popq", ImmReg "%rbp", ImmStr "dummy"), ("retq", ImmStr "dummy", ImmStr "dummy")]
+                              
 toSelect (SeqMon (MonLet var e) (MonLet var2 (MonPlus e2 e3)))  =
   -- e.g., let x = 4;; let y = 3 + 4;;
   let firsts = toSelect (MonLet var e) in
@@ -102,14 +115,6 @@ toSelect (CBlock (x:xs)) =
   toSelectHelper x ++ rest
   where
     rest = toSelect (CBlock xs)
-
-toSelect (MonBegin (Begin assignments (IfExpose cndexpose n collect) allocate allocassignments str)) =
-  let assigs = toSelectBeginAssignments assignments in
-    let cnd = toIfCndSelect cndexpose in
-      let collect' = collectToSelect collect in
-        let alloc = allocateToSelect allocate in
-          let allocassigns = toSelectBeginAllocAssigns allocassignments in
-            [("start", ImmStr "dummy", ImmStr "dummy")] ++ cnd ++ [("block_77", ImmStr "dummy", ImmStr "dummy")] ++ [("movq", ImmInt 0, ImmReg "%r13"), ("jmp", ImmStr "block_80", ImmStr "dummy")] ++ [("block_78", ImmStr "dummy", ImmStr "dummy")]++  collect' ++ [("jmp", ImmStr "block_80", ImmStr "dummy")] ++ [("block_80", ImmStr "dummy", ImmStr "dummy")] ++ alloc ++ allocassigns ++ [("callq", ImmStr "print_int", ImmStr "dummy")] ++ [("jmp", ImmStr "conclusion", ImmStr "dummy")] ++ [("conclusion", ImmStr "dummy", ImmStr "dummy")] ++ [("subq", ImmInt 8, ImmReg "%r15"), ("addq", ImmInt 0, ImmReg "%rsp"), ("popq", ImmReg "%rbp", ImmStr "dummy"), ("retq", ImmStr "dummy", ImmStr "dummy")]
                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 toSelectHelper :: (String, String, MonExp, String, String) -> [(String, Imm, Imm)]
 toSelectHelper s =
@@ -196,7 +201,7 @@ toAllocAssiHelper [] = []
 toAllocAssiHelper ((AllocAssign tuplename index var val):xs) =
   let n = 8 * (index + 1) in
     let tupmem = show n ++ "(%r11)" in
-      ("movq", ImmInt val, TupleMem tupmem) : ("movq", TupleMem tupmem, ImmReg "%rdi") : toAllocAssiHelper xs
+      ("movq", ImmInt val, TupleMem tupmem) : toAllocAssiHelper xs
 
 toIfCndSelect :: CndExpose -> [(String, Imm, Imm)]
 toIfCndSelect (GlobalValue free_ptr bytes from_space) =
