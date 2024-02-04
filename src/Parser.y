@@ -20,9 +20,12 @@ int        { TokenInt $$ }
 print      { TokenPrint }
 true       { TokenTrue $$}
 false      { TokenFalse $$}
+defun      { TokenDefun }
 '='        { TokenEq }
 '+'        { TokenPlus }
 '-'        { TokenMinus }
+'{'        { TokenCurlyL }
+'}'        { TokenCurlyR }
 '('        { TokenOP }
 ')'        { TokenCP }
 ']'        { TokenSqBR }
@@ -45,6 +48,7 @@ Exp : var  { Var $1 }
 | print '(' Exp ')' ';' { PrintExp $3 }
 | Exp ';' Exp  { Exps $1 $3 }
 | while Exp ':' Exp  { While $2 $4 }
+| defun Exp '(' Exp ')' '{' Exp '}'   { DefunExp $2 $4 $7 } 
 | '(' Exp ')'   { TupleExp $2 }
 | Exp '[' int ']'   { TupleIndex $1 $3 }
 | int  { Int $1 }
@@ -66,6 +70,7 @@ data Exp
   | GreaterThn Exp Exp
   | LessThn Exp Exp
   | While Exp Exp
+  | DefunExp Exp Exp Exp
   | TupleExp Exp
   | TupleIndex Exp Int
   | PrintExp Exp
@@ -78,6 +83,9 @@ data Token
   | TokenThen
   | TokenElse
   | TokenWhile
+  | TokenDefun
+  | TokenCurlyL
+  | TokenCurlyR
   | TokenPrint
   | TokenSqBL
   | TokenSqBR
@@ -113,6 +121,8 @@ lexer ('[':cs) = TokenSqBL : lexer cs
 lexer (']':cs) = TokenSqBR : lexer cs
 lexer ('<':cs) = TokenLess : lexer cs
 lexer ('>':cs) = TokenGreater : lexer cs
+lexer ('{':cs) = TokenCurlyL : lexer cs
+lexer ('}':cs) = TokenCurlyR : lexer cs
 
 lexNum cs = TokenInt (read num) : lexer rest
   where (num, rest) = span isDigit cs
@@ -127,6 +137,7 @@ lexExp cs =
   ("print", rest) -> TokenPrint : lexer rest
   ("True", rest) -> TokenTrue "True" : lexer rest
   ("False", rest) -> TokenFalse "False" : lexer rest
+  ("defun", rest) -> TokenDefun : lexer rest
   (var, rest) -> TokenVar var : lexer rest
 
 main = getContents >>= print . pyhs . lexer
