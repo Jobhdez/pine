@@ -17,6 +17,7 @@ data MonExp
     | MonNegative Int
     | MonBegin Begin
     | MonBlock String
+    | MonDefun DefunExp
     | MonPlus MonExp MonExp
     | MonWhile MonExp MonExp
     | MonMinus MonExp MonExp
@@ -78,7 +79,7 @@ toMon (Let var (Plus (Int e) (Negative e2))) counter =
       let assignment = MonLet var plusexp
           in
         SeqMon letexp assignment
- 
+        
 toMon (Let var (Negative n)) counter =
   MonLet var (MonNegative n)
 
