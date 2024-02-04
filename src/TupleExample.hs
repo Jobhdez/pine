@@ -1,8 +1,15 @@
 module TupleExample where
 
 import Compiler
+import System.IO
 
+compileFile :: FilePath -> IO ()
+compileFile filepath =
+  do
+    exp <- readFile filepath
+    let compiledExpression = compileExp exp
+    writeFile "tuple.s" compiledExpression
+    
 main :: IO ()
 main = do
-  let asm = compileExp "let x = (4;5;6);; print(x[1]);"
-  writeToFile "tuple.s" asm
+  compileFile "tuple.pyhs"
