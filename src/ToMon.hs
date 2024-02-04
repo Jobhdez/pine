@@ -17,7 +17,6 @@ data MonExp
     | MonNegative Int
     | MonBegin Begin
     | MonBlock String
-    | MonDefun DefunExp
     | MonPlus MonExp MonExp
     | MonWhile MonExp MonExp
     | MonMinus MonExp MonExp
