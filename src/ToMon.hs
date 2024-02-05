@@ -22,6 +22,7 @@ data MonExp
     | MonMinus MonExp MonExp
     | MonLet String MonExp
     | MonTupIndex String Int
+    | MonTuple MonExp
     | SeqMon MonExp MonExp
     | MonIf MonExp MonExp MonExp
     | MonPrint MonExp
@@ -53,6 +54,9 @@ toMon (PrintExp e) counter =
   in
     MonPrint monexp
 
+toMon (TupleIndex (Var var) index) counter =
+      MonTupIndex var index
+      
 toMon (Var v) counter = AtmVar v
 toMon (Bool b) counter = AtmBool b
 toMon (Plus (Int e) (Int e2)) counter = MonPlus (toMon (Int e) counter) (toMon (Int e2) counter)
@@ -82,6 +86,12 @@ toMon (Let var (Plus (Int e) (Negative e2))) counter =
         
 toMon (Let var (Negative n)) counter =
   MonLet var (MonNegative n)
+
+toMon (TupleExp exps) counter =
+  let monexps = toMon exps counter in
+    MonTuple monexps
+
+
 
 toMon (Let var e) counter =
   MonLet var (toMon e counter)
