@@ -5,11 +5,14 @@ import ToMon
 import ToSelect
 import ToStack
 import ToX86
+import ToC
 import qualified Data.Map as Map
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import System.IO
 
+-- x86 compiler
+---------------
 compileExp :: String -> String
 compileExp exp =
   let tokens = lexer exp in
@@ -37,6 +40,7 @@ compile exp =
       let ss' = ("start", ImmStr "dummy", ImmStr "dummy") : ss in
         let stk = toStackHelper ss' 0 Map.empty in
           toX86' stk
+
 
 -- utils --
   
