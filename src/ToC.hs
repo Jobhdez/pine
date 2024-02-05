@@ -33,13 +33,13 @@ toC (MonGreaterThn e e2) =
       ce ++ ">" ++ ce2
 
 toC (MonTupIndex var index) =
-  var ++ "[" ++ show index ++ "];"
+  var ++ "[" ++ show index ++ "]"
 
 toC (MonLet var (MonTuple exps)) =
   let cexps = toC exps in
     let len = length cexps in
       let cexps' = insertCommas cexps in
-        "int " ++ var ++ "[" ++ show len ++ "] =" ++ "{" ++ cexps' ++ "};"
+        "int " ++ var ++ "[" ++ show len ++ "] = " ++ "{" ++ cexps' ++ "};\n    "
   
 toC (MonLet var e) =
   let ce = toC e in
@@ -48,13 +48,13 @@ toC (MonLet var e) =
 toC (MonWhile cnd e) =
   let ccnd = toC cnd in
     let ce = toC e in
-      "while (" ++ ccnd ++ ") {\n\t" ++ ce ++ "};\n"
+      "while (" ++ ccnd ++ ") {\n\t" ++ ce ++ "}\n"
 
 toC (MonIf cnd thn els) =
   let ccnd = toC cnd in
     let cthn = toC thn in
       let cels = toC els in
-        "if (" ++ ccnd ++ ") {\n\t" ++ cthn ++ "}\nelse {\n\t"++ cels ++ "};"
+        "if (" ++ ccnd ++ ") {\n        " ++ cthn ++ "}\n    else {\n        "++ cels ++ "}"
   
 toC (SeqMon e e2)  =
   let firsts = toC e in
