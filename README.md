@@ -88,4 +88,4 @@ ghci> :q
 ```
 
 ## Thanks
-This compiler was based on Dr. Siek's compilation book https://github.com/IUCompilerCourse/Essentials-of-Compilation.
+This compiler was based on Dr. Siek's compilation book https://github.com/IUCompilerCourse/Essentials-of-Compilation. The runtime (runtime.c) was written by Dr. Siek but the compiler is my work.
