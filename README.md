@@ -1,4 +1,4 @@
-a compiler in development  ...
+a compiler with an x86-64 back-end and C backend!
 
 ## Running the program
 you will need to install the `happy` parser generator:
