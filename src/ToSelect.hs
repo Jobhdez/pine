@@ -151,7 +151,7 @@ the last bit represents whether its reachable from the root set.
 
 example using this code:
 
-> makeTag [Left 1, Left 1, Left 3]
+> makeTag (1;1;3)
 --> 7
 the tag 7 will be placed in front of the tuple. this is done because the
 garbage collector needs to distinguish tuples from other data :-)
