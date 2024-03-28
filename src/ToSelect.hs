@@ -156,12 +156,15 @@ example using this code:
 the tag 7 will be placed in front of the tuple. this is done because the
 garbage collector needs to distinguish tuples from other data :-)
 --}
-
+-- todo: rewrite makeTag
 makeTag :: Int -> Int
 makeTag lengthTup =
   let makePointerMask :: Int  -> Int -> String -> String
       makePointerMask 0 counter str = reverse str
       makePointerMask length counter str =
+       {- the point mask corresponds to a sequence of bits; if
+          the entry in the tuple is an int then return "0"; if its
+           another tuple return "1".-}
         let str' = str ++ (show counter) in
           str' ++ makePointerMask (length - 1) counter str'
       
