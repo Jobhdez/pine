@@ -1,0 +1,57 @@
+name:                pyhs
+version:             0.1.0.0
+build-type:          Simple
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:    src
+  exposed-modules:   Parser, ToMon, ToExposeAlloc, ToSelect, ToStack, ToX86, ToC, Compiler, CBackend
+  build-depends:     base >=4.7 && <5, array, containers, text
+  default-language:  Haskell2010
+
+executable ifexpeg
+  hs-source-dirs:    src, src/examples
+  main-is:           IfExpExample.hs
+  build-depends:     base >=4.7 && <5, pyhs, array, containers, text
+  default-language:  Haskell2010
+
+executable whileeg
+  hs-source-dirs:    src, src/examples
+  main-is:           WhileExample.hs
+  build-depends:     base >=4.7 && <5, pyhs, array, containers, text
+  default-language:  Haskell2010
+
+executable whileifeg
+  hs-source-dirs:    src, src/examples
+  main-is:           WhileIfExample.hs
+  build-depends:     base >=4.7 && <5, pyhs, array, containers, text
+  default-language:  Haskell2010
+
+executable tupc
+  hs-source-dirs:    src, src/examples
+  main-is:           CTupleEg.hs
+  build-depends:     base >=4.7 && <5, pyhs, array, containers, text
+  default-language:  Haskell2010
+
+
+executable tup
+  hs-source-dirs:    src, src/examples
+  main-is:           TupleExample.hs
+  build-depends:     base >=4.7 && <5, pyhs, array, containers, text
+  default-language:  Haskell2010
+
+executable ifc 
+  hs-source-dirs:    src, src/examples
+  main-is:           ToCIfExample.hs
+  build-depends:     base >=4.7 && <5, pyhs, array, containers, text
+  default-language:  Haskell2010
+
+executable whileifc
+  hs-source-dirs:    src, src/examples
+  main-is:           WhileIfToC.hs
+  build-depends:     base >=4.7 && <5, pyhs, array, containers, text
+  default-language:  Haskell2010
+
+build-tools:
+  happy >=1.19.5,
+  alex >=3.1.7
