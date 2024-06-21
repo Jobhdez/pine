@@ -1,4 +1,4 @@
-module ToCIfExample where
+module Main where
 
 import CBackend
 

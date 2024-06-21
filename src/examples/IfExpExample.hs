@@ -1,4 +1,4 @@
-module IfExpExample where
+module Main where
 
 import Compiler
 

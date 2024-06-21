@@ -1,4 +1,4 @@
-module TupleExample where
+module Main where
 
 import Compiler
 import System.IO

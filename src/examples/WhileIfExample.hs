@@ -1,4 +1,4 @@
-module WhileIfExample where
+module Main where
 
 import Compiler
 

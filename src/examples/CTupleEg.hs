@@ -1,4 +1,4 @@
-module CTupleEg where
+module Main where
 
 import CBackend
 
