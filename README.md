@@ -21,7 +21,18 @@ below.
 * ghci ToSelect.hs
 ```
 ## Examples
+Before running the examples, you need to build it:
 
+```
+* cabal build
+```
+and when you have the generated assembly, use gcc:
+
+```
+* cd pyhs
+* gcc -c -g -std=c99 src/runtime/runtime.c
+* gcc -g runtime.o <assembly file>
+```
 So far it can compile the following expressions:
 
 ```
@@ -30,61 +41,40 @@ let x = 0;; while x < 4;: if x < 5; then print(x);; let x = x + 1;; else print(3
 You can generate the assembly file for the above program by:
 
 ```
-* cd pyhs/src
-* gcc -c -g -std=c99 runtime.c
-* ghci WhileIfExample.hs
-ghci> main
-ghci> :q
-* gcc -g runtime.o whileifeg.s
-* ./a.out
+* cd pyhs
+* cabal run whileifeg
 ```
 You can also compile an expression such as
 
 ```
 if True then print(2); else print(3);;
 ```
-
-To generate the assembly for `if True then print(2); else print(3);;` do the following:
+To run this example:
 
 ```
-* cd pyhs/src
-* gcc -c -g -std=c99 runtime.c
-* ghci IfExpExample.hs
-ghci> main
-ghci> :q
-* gcc -g runtime.o ifasm.s
-* ./a.out
+* cabal run ifexpeg
 ```
 And I have also tested this program 
 ```
 let x = 0;; while x < 5;: print(x);; let x = x + 1;;
 ```
 To generate the assembly for this program:
+
 ```
-* cd pyhs/src
-* gcc -c -g -std=c99 runtime.c
-* ghci WhileExample.hs
-ghci> main
-ghci> :q
-* gcc -g runtime.o whileeg.s
-* ./a.out
+* cabal run whileeg
 ```
 ## Tuples
+
 So far I can only compile the expression:
+
 ```
 let x = (4;5;6);; print(x[1]);
 ```
-To file `tuple.s` is the generated code from this expression. 
 
-But if you want to generate the file yourself:
+If you want to generate the file yourself:
+
 ```
-* cd pyhs/src
-* gcc -c -g -std=c99 runtime.c
-* ghci TupleExample.hs
-ghci> main
-ghci> :q
-* gcc -g runtime.o tuple.s
-* ./a.out
+* cabal run tup
 ```
 
 ## Thanks
