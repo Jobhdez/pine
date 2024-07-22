@@ -1,5 +1,6 @@
 a compiler with an x86-64 back-end and C backend!
 
+I have plans to change the syntax.
 ## Running the program
 you will need to install the `happy` parser generator:
 
